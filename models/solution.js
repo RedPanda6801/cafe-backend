@@ -23,7 +23,7 @@ module.exports = class Solution extends Sequelize.Model {
     );
   }
 
-  // static associate(db) {
-
-  // }
+  static associate(db) {
+    db.Solution.belongsTo(db.Owner);
+  }
 };

@@ -35,7 +35,8 @@ module.exports = class Cafe extends Sequelize.Model {
     );
   }
 
-  // static associate(db) {
-
-  // }
+  static associate(db) {
+    db.Cafe.hasMany(db.Customer);
+    db.Cafe.belongsTo(db.Owner);
+  }
 };

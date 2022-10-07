@@ -23,7 +23,8 @@ module.exports = class Customer extends Sequelize.Model {
     );
   }
 
-  // static associate(db) {
-
-  // }
+  static associate(db) {
+    db.Customer.hasMany(db.Stamp);
+    db.Customer.belongsTo(db.Cafe);
+  }
 };
