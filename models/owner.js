@@ -43,7 +43,9 @@ module.exports = class Owner extends Sequelize.Model {
     );
   }
 
-  // static associate(db) {
-
-  // }
+  static associate(db) {
+    db.Owner.hasMany(db.Cafe);
+    db.Owner.hasMany(db.Question);
+    db.Owner.hasMany(db.Solution);
+  }
 };

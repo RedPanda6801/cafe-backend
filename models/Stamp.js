@@ -6,7 +6,7 @@ module.exports = class Stamp extends Sequelize.Model {
     return super.init(
       {
         count: {
-          type: Sequelize.Number(100),
+          type: Sequelize.INTEGER,
           allowNull: false,
         },
       },
@@ -23,7 +23,8 @@ module.exports = class Stamp extends Sequelize.Model {
     );
   }
 
-  // static associate(db) {
-
-  // }
+  static associate(db) {
+    db.Stamp.belongsTo(db.Cafe);
+    db.Stamp.belongsTo(db.Customer);
+  }
 };
