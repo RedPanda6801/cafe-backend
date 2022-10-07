@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const env = process.env.NODE_ENV || "development";
 const config = require("../config/config")[env];
-const User = require("./user");
+const Owner = require("./owner");
 
 const db = {};
 const sequelize = new Sequelize(
@@ -12,9 +12,9 @@ const sequelize = new Sequelize(
 );
 
 db.sequelize = sequelize;
-db.User = User;
+db.Owner = Owner;
 
-User.init(sequelize);
+Owner.init(sequelize);
 
 // User.associate(db);
 
