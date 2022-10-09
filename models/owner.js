@@ -9,6 +9,10 @@ module.exports = class Owner extends Sequelize.Model {
           type: Sequelize.STRING(50),
           allowNull: false,
         },
+        provider: {
+          type: Sequelize.STRING(50),
+          allowNull: false,
+        },
         userId: {
           type: Sequelize.STRING(20),
           allowNull: false,
