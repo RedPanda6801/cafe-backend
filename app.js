@@ -10,14 +10,15 @@ const cors = require("cors");
 dotenv.config();
 
 // 라우터 불러오기
-const mainRouter = require("./routes/main");
+const mailRouter = require("./routes/mail");
+const authRouter = require("./routes/auth");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
 
 const app = express();
 passportConfig();
-app.set("port", process.env.PORT || 8001);
+app.set("port", process.env.PORT || 8002);
 sequelize
   .sync({ force: false })
   .then(() => {
@@ -52,7 +53,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // 라우터 설정
-app.get("/", mainRouter);
+app.use("/mail", mailRouter);
+app.use("/auth", authRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
