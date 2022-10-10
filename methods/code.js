@@ -9,3 +9,14 @@ exports.getAuthCode = () => {
 
   return String.fromCharCode(...arr);
 };
+
+exports.getExpireDate = (month) => {
+  let date = new Date();
+  let addMonth = date.getMonth() + month;
+  if (addMonth > 11) {
+    date.setFullYear(date.getFullYear() + 1);
+    addMonth -= 12;
+  }
+  const newDate = new Date(date.setMonth(addMonth + 1));
+  return newDate;
+};

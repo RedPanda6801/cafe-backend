@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
-const mailList = ["naver", "daum", "gmail"];
+const mailList = ["naver", "daum", "gmail", "kakao"];
 
 exports.signup = async (req, res) => {
   try {
@@ -86,7 +86,7 @@ exports.signin = async (req, res, next) => {
         process.env.JWT_SECRET,
         {
           expiresIn: "30m", // 30분
-          issuer: "nodebird",
+          issuer: "Cafe Managers",
         }
       );
       req.session.jwt = token;

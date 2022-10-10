@@ -12,6 +12,7 @@ dotenv.config();
 // 라우터 불러오기
 const mailRouter = require("./routes/mail");
 const authRouter = require("./routes/auth");
+const cafeRouter = require("./routes/cafe");
 
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
@@ -55,6 +56,7 @@ app.use(passport.session());
 // 라우터 설정
 app.use("/mail", mailRouter);
 app.use("/auth", authRouter);
+app.use("/cafe", cafeRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
