@@ -19,6 +19,6 @@ router.get("/info", verifyToken, cafeinfo);
 // 내 카페 정보 수정
 router.put("/update-cafe", verifyToken, updatecafe);
 // 내 카페 삭제
-router.delete("/remove-cafe/:email/:password", verifyToken, removecafe);
+router.delete("/remove-cafe/:cafeName", verifyToken, removecafe);
 
 module.exports = router;

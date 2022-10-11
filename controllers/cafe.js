@@ -6,13 +6,14 @@ const { getExpireDate } = require("../methods/code");
 exports.addCafe = async (req, res) => {
   try {
     // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
-    const { businessNum, cafeName, location, subscribeDate } = req.body;
+    const { cafeName, location, businessNum, subscribeDate } = req.body;
     console.log(businessNum, cafeName, location, subscribeDate);
     const newCafe = await Cafe.create({
-      businessNum: 105015,
-      cafeName: "테스트카페",
-      location: "서울특별시 강남구 감자로 감자감자길 103-13",
+      cafeName: cafeName,
+      location: location,
+      businessNum: businessNum,
       expireDate: getExpireDate(subscribeDate),
+      // Ownerid: req.decoded.id,
     });
     console.log(newCafe);
     if (newCafe) {
@@ -79,7 +80,7 @@ exports.cafeinfo = async (req, res) => {
 exports.updatecafe = async (req, res) => {
   try {
     const { cafeName, location, businessNum } = req.body;
-    const cafe = await Cafe.findOne({ where: { cafeName } });
+    const cafe = await Cafe.findOne({ where: { id: req.decoded.id } });
     if (cafe) {
       const renewCafe = await Cafe.update(
         {
@@ -116,8 +117,10 @@ exports.updatecafe = async (req, res) => {
 exports.removecafe = async (req, res) => {
   try {
     const { cafeName } = req.params;
+    console.log(cafeName);
     const cafe = await Cafe.findOne({ where: { cafeName } });
-    if (cafe.id === req.decoded.id) {
+    console.log(cafe);
+    if (!cafe.id) {
       await Cafe.destroy({ where: { cafeName } });
       res.status(200).json({
         message: "Remove Success",
