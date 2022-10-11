@@ -1,16 +1,19 @@
 const Cafe = require("../models/cafe");
+const Owner = require("../models/owner");
+
 const { getExpireDate } = require("../methods/code");
 
 exports.addCafe = async (req, res) => {
   try {
     // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
-    const { businessNum, cafeName, location, subscribeDate } = req.body;
+    const { cafeName, location, businessNum, subscribeDate } = req.body;
     console.log(businessNum, cafeName, location, subscribeDate);
     const newCafe = await Cafe.create({
-      businessNum: 105015,
-      cafeName: "테스트카페",
-      location: "서울특별시 강남구 감자로 감자감자길 103-13",
+      cafeName: cafeName,
+      location: location,
+      businessNum: businessNum,
       expireDate: getExpireDate(subscribeDate),
+      // Ownerid: req.decoded.id,
     });
     console.log(newCafe);
     if (newCafe) {
@@ -44,6 +47,88 @@ exports.checkCafeName = async (req, res) => {
     } else {
       return res.status(200).json({
         message: "Name Check Success",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Not Found",
+    });
+  }
+};
+exports.cafeinfo = async (req, res) => {
+  try {
+    const mycafe = await Cafe.findOne({ where: { id: req.decoded.id } });
+    console.log(mycafe);
+    if (mycafe) {
+      return res.status(200).json({
+        message: "Cafe Infomation Success",
+      });
+    } else {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Not Found",
+    });
+  }
+};
+
+exports.updatecafe = async (req, res) => {
+  try {
+    const { cafeName, location, businessNum } = req.body;
+    const cafe = await Cafe.findOne({ where: { id: req.decoded.id } });
+    if (cafe) {
+      const renewCafe = await Cafe.update(
+        {
+          cafeName: cafeName ? cafeName : cafe.cafeName,
+          location: location ? location : cafe.location,
+          businessNum: businessNum ? businessNum : cafe.businessNum,
+        },
+        {
+          where: { id: req.decoded.id },
+        }
+      );
+      if (renewCafe) {
+        return res.status(200).json({
+          message: "Update Success",
+        });
+      } else {
+        return res.status(400).json({
+          message: "Update Failed",
+        });
+      }
+    } else {
+      return res.status(403).json({
+        message: "Forbidden",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Not Found",
+    });
+  }
+};
+
+exports.removecafe = async (req, res) => {
+  try {
+    const { cafeName } = req.params;
+    console.log(cafeName);
+    const cafe = await Cafe.findOne({ where: { cafeName } });
+    console.log(cafe);
+    if (!cafe.id) {
+      await Cafe.destroy({ where: { cafeName } });
+      res.status(200).json({
+        message: "Remove Success",
+      });
+    } else {
+      console.log("cafeName error");
+      res.status(400).json({
+        message: "cafeName Error",
       });
     }
   } catch (error) {
