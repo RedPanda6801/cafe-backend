@@ -10,7 +10,7 @@ module.exports = class Cafe extends Sequelize.Model {
           allowNull: false,
         },
         location: {
-          type: Sequelize.STRING(50),
+          type: Sequelize.STRING(200),
           allowNull: false,
         },
         businessNum: {

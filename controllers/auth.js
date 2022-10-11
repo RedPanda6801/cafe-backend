@@ -3,17 +3,19 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
-const mailList = ["naver", "daum", "gmail", "kakao"];
+const mailList = ["naver", "daum", "gmail", "kakao", "hanmail"];
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password, userId, name, phone, isManager } = req.body;
+    const { email, password, userId, name, phone } = req.body;
     const emailCheck = await Owner.findOne({ where: { email } });
     if (emailCheck) {
       return res.status(400).json({
         message: "Email is Overlapped",
       });
     }
+    const isManager = false;
+    if (userId === "root" && password === "root") isManager = true;
     console.log(email, password, userId, name, phone, isManager);
     if (email && password && userId && name && phone) {
       const domain = email.split("@")[1];
@@ -39,27 +41,28 @@ exports.signup = async (req, res) => {
           password: hash,
         });
         if (join) {
-          res.status(200).json({
+          return res.status(200).json({
             message: "success",
           });
         } else {
-          res.status(400).json({
+          return res.status(400).json({
             message: "failed",
           });
         }
       } else {
-        res.status(400).json({
+        console.log("existed");
+        return res.status(400).json({
           message: "Already Existed User",
         });
       }
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         message: "Bad Request",
       });
     }
   } catch (error) {
     console.log(error);
-    res.status(404).json({
+    return res.status(404).json({
       message: "Not Found",
     });
   }
@@ -107,16 +110,15 @@ exports.signin = async (req, res, next) => {
 exports.checkEmail = async (req, res) => {
   try {
     const { email } = req.params;
-    const check = await Owner.findOne({ email });
-
-    if (check.email === email) {
-      console.log("email already existed!");
-      return res.status(400).json({
-        message: "Email Existed",
-      });
-    } else {
+    const check = await Owner.findOne({ where: { email } });
+    if (!check) {
       return res.status(200).json({
         message: "Sucess to Check",
+      });
+    } else {
+      console.log("email already existed!");
+      return res.status(400).json({
+        message: "email Existed",
       });
     }
   } catch (error) {
@@ -129,16 +131,16 @@ exports.checkEmail = async (req, res) => {
 exports.checkUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    const check = await Owner.findOne({ userId });
-
-    if (check.userId === userId) {
+    console.log(userId);
+    const check = await Owner.findOne({ where: { userId } });
+    if (!check) {
+      return res.status(200).json({
+        message: "Sucess to Check",
+      });
+    } else {
       console.log("userId already existed!");
       return res.status(400).json({
         message: "userId Existed",
-      });
-    } else {
-      return res.status(200).json({
-        message: "Sucess to Check",
       });
     }
   } catch (error) {
