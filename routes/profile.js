@@ -1,5 +1,5 @@
 const express = require("express");
-const { isNotLoggedIn, verifyToken } = require("../middlewares/middleware");
+const { verifyToken } = require("../middlewares/middleware");
 const {
   Ownerinfo,
   updateOwner,
