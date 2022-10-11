@@ -8,7 +8,12 @@ const mailList = ["naver", "daum", "gmail", "kakao"];
 exports.signup = async (req, res) => {
   try {
     const { email, password, userId, name, phone, isManager } = req.body;
-
+    const emailCheck = await Owner.findOne({ where: { email } });
+    if (emailCheck) {
+      return res.status(400).json({
+        message: "Email is Overlapped",
+      });
+    }
     console.log(email, password, userId, name, phone, isManager);
     if (email && password && userId && name && phone) {
       const domain = email.split("@")[1];
