@@ -80,6 +80,9 @@ exports.cafeinfo = async (req, res) => {
 exports.updatecafe = async (req, res) => {
   try {
     const { cafeName, location, businessNum } = req.body;
+    console.log(req.files);
+    const icon = req.files[1] && req.files[1].filename;
+    const img = req.files[0] && req.files[0].filename;
     const cafe = await Cafe.findOne({ where: { id: req.decoded.id } });
     if (cafe) {
       const renewCafe = await Cafe.update(
@@ -87,6 +90,8 @@ exports.updatecafe = async (req, res) => {
           cafeName: cafeName ? cafeName : cafe.cafeName,
           location: location ? location : cafe.location,
           businessNum: businessNum ? businessNum : cafe.businessNum,
+          icon: icon ? icon : cafe.icon,
+          img: img ? img : cafe.img,
         },
         {
           where: { id: req.decoded.id },

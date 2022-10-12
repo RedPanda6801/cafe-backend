@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const RateLimit = require("express-rate-limit");
 const Owner = require("../models/owner");
-
+const multer = require("multer");
+const path = require("path");
 exports.checkUserOAuth = async (req, res, next) => {
   try {
     console.log(req.decoded.id);
@@ -73,4 +74,15 @@ exports.apiLimiter = RateLimit({
       message: "1분에 한 번만 요청할 수 있습니다.",
     });
   },
+});
+
+exports.upload = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "uploads/");
+    },
+    filename: function (req, file, cb) {
+      cb(null, new Date().valueOf() + path.extname(file.originalname));
+    },
+  }),
 });
