@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const RateLimit = require("express-rate-limit");
+
 const { Owner, Customer } = require("../models");
 const multer = require("multer");
 const path = require("path");
@@ -87,6 +88,7 @@ exports.upload = multer({
     },
   }),
 });
+
 
 exports.checkCustomer = async (req, res, next) => {
   try {
