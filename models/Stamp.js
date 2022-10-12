@@ -5,9 +5,13 @@ module.exports = class Stamp extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        count: {
+        stackStemp: {
           type: Sequelize.INTEGER,
-          allowNull: false,
+          allowNull: true,
+        },
+        leftStamp: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
         },
       },
       {
@@ -24,6 +28,9 @@ module.exports = class Stamp extends Sequelize.Model {
 
   static associate(db) {
     db.Stamp.belongsTo(db.Cafe);
-    db.Stamp.belongsTo(db.Customer);
+    db.Stamp.hasMany(db.Customer, {
+      foreignKey: "custPhone",
+      targetKey: "custPhone",
+    });
   }
 };

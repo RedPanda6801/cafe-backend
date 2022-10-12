@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const RateLimit = require("express-rate-limit");
-const Owner = require("../models/owner");
+
+const { Owner, Customer } = require("../models");
 const multer = require("multer");
 const path = require("path");
+
 exports.checkUserOAuth = async (req, res, next) => {
   try {
     console.log(req.decoded.id);
@@ -86,3 +88,20 @@ exports.upload = multer({
     },
   }),
 });
+
+
+exports.checkCustomer = async (req, res, next) => {
+  try {
+    const { custPhone } = req.params;
+    const customer = await Customer.findOne({ where: { custPhone } });
+    if (!customer) {
+      await Customer.create({ custPhone });
+    }
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Failed to Read Phone Number",
+    });
+  }
+};
