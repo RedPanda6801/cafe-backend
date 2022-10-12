@@ -1,5 +1,6 @@
 const { verifyToken } = require("../middlewares/middleware");
 const { Customer } = require("../models");
+const { Stamp } = require("../models");
 
 exports.registercustomer = async (req, res) => {
   try {
@@ -9,7 +10,11 @@ exports.registercustomer = async (req, res) => {
       const join = await Customer.create({
         custPhone,
       });
-      if (join) {
+      const addstamp = await Stamp.create({
+        //고객 등록시 도장 추가??
+        count: 1,
+      });
+      if (join && addstamp) {
         return res.status(200).json({
           message: "Customer Resister Success",
         });
@@ -43,7 +48,7 @@ exports.customerinfo = async (req, res) => {
     console.log(customerprofile);
     if (customerprofile) {
       return res.status(200).json({
-        message: "CUstomer Profile Success",
+        message: "Customer Profile Success",
         customer: customerprofile,
       });
     } else {
