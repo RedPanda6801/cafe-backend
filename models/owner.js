@@ -38,9 +38,8 @@ module.exports = class Owner extends Sequelize.Model {
         sequelize,
         timestamps: true,
         underscored: false,
-        modelName: "Onwer",
+        modelName: "Owner",
         tableName: "Owners",
-        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }
