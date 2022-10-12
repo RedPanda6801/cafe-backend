@@ -16,7 +16,6 @@ module.exports = class Qustion extends Sequelize.Model {
         underscored: false,
         modelName: "Qustion",
         tableName: "Qustions",
-        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }

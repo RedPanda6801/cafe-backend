@@ -13,7 +13,7 @@ exports.addCafe = async (req, res) => {
       location: location,
       businessNum: businessNum,
       expireDate: getExpireDate(subscribeDate),
-      // Ownerid: req.decoded.id,
+      OwnerId: req.decoded.id,
     });
     console.log(newCafe);
     if (newCafe) {

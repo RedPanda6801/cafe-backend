@@ -16,7 +16,6 @@ module.exports = class Stamp extends Sequelize.Model {
         underscored: false,
         modelName: "Stamp",
         tableName: "Stamps",
-        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }

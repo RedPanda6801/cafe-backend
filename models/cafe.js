@@ -21,6 +21,14 @@ module.exports = class Cafe extends Sequelize.Model {
           type: Sequelize.DATE,
           allowNull: false,
         },
+        icon: {
+          type: Sequelize.STRING(100),
+          allowNull: true,
+        },
+        img: {
+          type: Sequelize.STRING(100),
+          allowNull: true,
+        },
       },
       {
         sequelize,
@@ -36,7 +44,7 @@ module.exports = class Cafe extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Cafe.hasMany(db.Customer);
+    db.Cafe.hasMany(db.Stamp);
     db.Cafe.belongsTo(db.Owner);
   }
 };
