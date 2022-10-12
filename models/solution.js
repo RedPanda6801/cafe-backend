@@ -16,7 +16,6 @@ module.exports = class Solution extends Sequelize.Model {
         underscored: false,
         modelName: "Solution",
         tableName: "Solutions",
-        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }
@@ -25,5 +24,6 @@ module.exports = class Solution extends Sequelize.Model {
 
   static associate(db) {
     db.Solution.belongsTo(db.Owner);
+    db.Solution.hasOne(db.Question);
   }
 };
