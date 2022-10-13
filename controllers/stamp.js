@@ -1,41 +1,6 @@
 const { Stamp } = require("../models");
 
-// exports.addstamp = async (req, res) => {
-//   try {
-//     const { count } = req.body;
-//     const stamp = await Stamp.findOne({ where: { id: req.decoded.id } });
-//     if (stamp) {
-//       const sumstamp = await Stamp.update(
-//         {
-//           count,
-//         },
-//         {
-//           where: { id: req.decoded.id },
-//         }
-//       );
-//       if (sumstamp) {
-//         return res.status(200).json({
-//           message: "Update Success",
-//         });
-//       } else {
-//         return res.status(400).json({
-//           message: "Update Failed",
-//         });
-//       }
-//     } else {
-//       return res.status(403).json({
-//         message: "Forbidden",
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(404).json({
-//       message: "Not Found",
-//     });
-//   }
-// };
-
-exports.searchstamp = async (req, res) => {
+exports.checkStamp = async (req, res) => {
   try {
     const { custPhone, cafeId } = req.params;
 
@@ -49,6 +14,8 @@ exports.searchstamp = async (req, res) => {
         leftStamp: 0,
         CafeId: cafeId,
         custPhone,
+        visit: 0,
+        memo: "",
       });
       return res.status(200).json({
         message: "Create Stamp Success",
@@ -67,12 +34,74 @@ exports.searchstamp = async (req, res) => {
     });
   }
 };
-// 쿠폰 삭제는 일시정지
-// exports.removestamp = async (req, res) => {
-//   try {
-//     const
-//   }
-//   catch (error) {
 
-//   }
-// };
+exports.addstamp = async (req, res) => {
+  try {
+    const { custPhone, cafeId } = req.params;
+    // url로 도장 개수를 강제로 추가하는 방법을 제한함
+    const { addCount } = req.body;
+
+    const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
+    if (stamp) {
+      Stamp.update(
+        {
+          stackStamp: stamp.stackStamp + addCount,
+          leftStamp: stamp.leftStamp + addCount,
+          visit: stamp.visit + 1,
+        },
+        {
+          where: { custPhone, CafeId: cafeId },
+        }
+      );
+      return res.status(200).json({
+        message: "Adding Stamp Success",
+      });
+    } else {
+      return res.status(400).json({
+        message: "Customer didn't have Stamp",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Not Found",
+    });
+  }
+};
+
+exports.useStamp = async (req, res) => {
+  try {
+    const { custPhone, cafeId } = req.params;
+    // url로 도장 개수를 강제로 추가하는 방법을 제한함
+    const { useCount } = req.body;
+
+    const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
+    if (stamp) {
+      if (stamp.leftStamp < 10) {
+        return res.status(400).json({
+          message: "Not Enough Stamp",
+        });
+      }
+      Stamp.update(
+        {
+          leftStamp: stamp.leftStamp - useCount * 10,
+        },
+        {
+          where: { custPhone, CafeId: cafeId },
+        }
+      );
+      return res.status(200).json({
+        message: "Using Stamp Success",
+      });
+    } else {
+      return res.status(400).json({
+        message: "Customer didn't have Stamp",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(404).json({
+      message: "Not Found",
+    });
+  }
+};

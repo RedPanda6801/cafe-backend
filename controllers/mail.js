@@ -1,4 +1,3 @@
-const nodemailer = require("nodemailer");
 const { getAuthCode, makeEmail } = require("../methods/code");
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
