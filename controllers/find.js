@@ -1,4 +1,4 @@
-const { makeEmail, getTempPassword } = require("../methods/code");
+const { makeEmail, getTempPassword } = require("../libs/util");
 const { Owner } = require("../models");
 
 exports.sendUserId = async (req, res) => {

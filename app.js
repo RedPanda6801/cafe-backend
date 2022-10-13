@@ -18,6 +18,7 @@ const findRouter = require("./routes/find");
 const stampRouter = require("./routes/stamp");
 const customerRouter = require("./routes/customer");
 
+const resCode = require("./libs/error");
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
 
@@ -66,10 +67,13 @@ app.use("/find", findRouter);
 app.use("/stamp", stampRouter);
 app.use("/customer", customerRouter);
 
+// 404 NOT FOUND
 app.use((req, res, next) => {
-  const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
-  error.status = 404;
-  next(error);
+  if (res.statusCode !== 500) {
+    const error = resCode.NOT_FOUND;
+    console.log(error.message);
+    return res.status(error.code).json(error);
+  } else next();
 });
 
 app.use((err, req, res, next) => {

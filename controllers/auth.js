@@ -2,94 +2,78 @@ const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const resCode = require("../libs/error");
 
 const mailList = ["naver", "daum", "gmail", "kakao", "hanmail"];
 
 exports.signup = async (req, res) => {
   try {
     const { email, password, userId, name, phone } = req.body;
-    const emailCheck = await Owner.findOne({ where: { email } });
-    if (emailCheck) {
-      return res.status(400).json({
-        message: "Email is Overlapped",
-      });
+    // body 확인 예외처리
+    if (!email || !password || !userId || !name || !phone) {
+      const error = resCode.BAD_REQEST_LACK_DATA;
+      console.log("ERROR :", error.message);
+      return res.status(error.code).json(error);
     }
-    const isManager = false;
-    if (userId === "root" && password === "root") isManager = true;
-    console.log(email, password, userId, name, phone, isManager);
-    if (email && password && userId && name && phone) {
-      const domain = email.split("@")[1];
-      const provider = domain.split(".")[0];
-      // 입력한 email로 UserDB의 email을 찾는다.
-      if (!mailList.find((mail) => mail === provider)) {
-        return res.status(400).json({
-          message: "Doamin didn't Provided",
-        });
-      }
-      const owner = await Owner.findOne({ where: { email } });
-      if (!owner) {
-        // password 암호화
-        const hash = await bcrypt.hash(password, 12);
-        const join = await Owner.create({
-          // 입력한 값들에 대해 각각의 유효성 검사가 필요(백엔드에서 한번 더 처리)
-          email,
-          name,
-          ownerPhone: phone,
-          userId,
-          provider,
-          isManager,
-          password: hash,
-        });
-        if (join) {
-          return res.status(200).json({
-            message: "success",
-          });
-        } else {
-          return res.status(400).json({
-            message: "failed",
-          });
-        }
-      } else {
-        console.log("existed");
-        return res.status(400).json({
-          message: "Already Existed User",
-        });
-      }
+    // 유효 도메인 확인 예외 처리
+    const provider = email.split("@")[1].split(".")[0];
+    if (!mailList.find((mail) => mail === provider)) {
+      const error = resCode.BAD_REQEST_WRONG_DATA;
+      error.message = "Doamin didn't Provided";
+      console.log("ERROR :", error.message);
+      return res.status(error.code).json(error);
+    }
+    // 이메일 중복 확인 예외 처리
+    if (await Owner.findOne({ where: { email } })) {
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      console.log("ERROR :", error.message);
+      return res.status(error.code).json(error);
     } else {
-      return res.status(400).json({
-        message: "Bad Request",
+      // 관리자 권한 부여
+      isManger = name == "root" ? true : false;
+      // password 암호화
+      const hash = await bcrypt.hash(password, 12);
+      await Owner.create({
+        // 입력한 값들에 대해 각각의 유효성 검사가 필요(백엔드에서 한번 더 처리)
+        email,
+        name,
+        ownerPhone: phone,
+        userId,
+        provider,
+        isManager,
+        password: hash,
       });
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
 exports.signin = async (req, res, next) => {
-  // passport를 사용할지 말지를 결정해야함.
-  // request에 user 정보를 실어줘야 하므로 보안성 측면과 jwt와의 중복 측면에서 고려해볼 이슈임.
   passport.authenticate("local", (authError, user, info) => {
     if (authError) {
-      console.error(authError);
+      console.error("ERROR :", authError);
       return res.status(404).json({ authError });
     }
     if (!user) {
-      return res.status(400).json({
-        message: "failed",
-      });
+      const error = resCode.BAD_REQUEST_NO_USER;
+      console.log("ERROR :", error.message);
+      return res.status(error.code).json(error);
     }
     return req.login(user, (loginError) => {
       if (loginError) {
-        console.error(loginError);
+        console.error("ERROR :", loginError);
         return next(loginError);
       }
+      // 토큰 지급
       const token = jwt.sign(
         {
           id: user.id,
-          nick: user.nick,
+          isManager: user.isManager,
         },
         process.env.JWT_SECRET,
         {
@@ -98,11 +82,9 @@ exports.signin = async (req, res, next) => {
         }
       );
       req.session.jwt = token;
-      return res.status(200).json({
-        message: "success",
-        token,
-        // payload에 user의 값이 담겨있음
-      });
+      const response = resCode.REQEST_SUCCESS;
+      response.token = token;
+      return res.status(response.code).json(response);
     });
   })(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙입니다.
 };
@@ -110,43 +92,34 @@ exports.signin = async (req, res, next) => {
 exports.checkEmail = async (req, res) => {
   try {
     const { email } = req.params;
-    const check = await Owner.findOne({ where: { email } });
-    if (!check) {
-      return res.status(200).json({
-        message: "Sucess to Check",
-      });
+    if (await Owner.findOne({ where: { email } })) {
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      console.error("ERROR :", error.message);
+      return res.status(error.code).json(error);
     } else {
-      console.log("email already existed!");
-      return res.status(400).json({
-        message: "email Existed",
-      });
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log("email check error -", error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
 exports.checkUserId = async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log(userId);
-    const check = await Owner.findOne({ where: { userId } });
-    if (!check) {
-      return res.status(200).json({
-        message: "Sucess to Check",
-      });
+    if (await Owner.findOne({ where: { userId } })) {
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      console.error(error.code);
+      return res.status(error.code).json(error);
     } else {
-      console.log("userId already existed!");
-      return res.status(400).json({
-        message: "userId Existed",
-      });
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log("userId check error -", error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };

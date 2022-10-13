@@ -1,4 +1,4 @@
-const { Customer, Stamp, Cafe } = require("../models");
+const { Stamp } = require("../models");
 
 // 카페마다의 고객정보를 조회할 수 있다.
 exports.infoCustomer = async (req, res) => {

@@ -17,7 +17,12 @@ router.get("/check-cafe/:cafeName", verifyToken, checkCafeName);
 // 내 카페 정보 조회
 router.get("/info", verifyToken, cafeinfo);
 // 내 카페 정보 수정
-router.put("/update-cafe", verifyToken, upload.array("image"), updatecafe);
+router.put(
+  "/update-cafe/:cafeId",
+  verifyToken,
+  upload.array("image"),
+  updatecafe
+);
 // 내 카페 삭제
 router.delete("/remove-cafe/:cafeName", verifyToken, removecafe);
 

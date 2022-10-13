@@ -1,4 +1,4 @@
-const { getAuthCode, makeEmail } = require("../methods/code");
+const { getAuthCode, makeEmail } = require("../libs/util");
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
 
