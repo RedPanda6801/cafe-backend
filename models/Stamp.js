@@ -5,12 +5,20 @@ module.exports = class Stamp extends Sequelize.Model {
   static init(sequelize) {
     return super.init(
       {
-        stackStemp: {
+        stackStamp: {
           type: Sequelize.INTEGER,
           allowNull: true,
         },
         leftStamp: {
           type: Sequelize.INTEGER,
+          allowNull: true,
+        },
+        visit: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+        },
+        memo: {
+          type: Sequelize.STRING(100),
           allowNull: true,
         },
       },
