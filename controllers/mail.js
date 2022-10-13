@@ -1,4 +1,3 @@
-const nodemailer = require("nodemailer");
 const { getAuthCode, makeEmail } = require("../methods/code");
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
@@ -14,7 +13,7 @@ exports.emailsender = async (req, res) => {
     if (code && email) {
       const html = `<h1>이메일 인증 코드입니다.</h1>
       <h2>${code}</h2>
-      <h3>게이게이야~~</h3>
+      <h3>코드를 입력해주세요!</h3>
       `;
       const subject = "이메일 인증 요청 - 감자네 커피";
       // email과 code가 유효하면 메일을 보냄

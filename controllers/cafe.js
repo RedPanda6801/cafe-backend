@@ -58,11 +58,23 @@ exports.checkCafeName = async (req, res) => {
 };
 exports.cafeinfo = async (req, res) => {
   try {
-    const mycafe = await Cafe.findOne({ where: { id: req.decoded.id } });
+    const { id } = req.decoded;
+    const owner = await Owner.findOne({ where: { id } });
+    const mycafe = await Cafe.findOne({ where: { id } });
+
     console.log(mycafe);
     if (mycafe) {
       return res.status(200).json({
         message: "Cafe Infomation Success",
+        data: {
+          name: mycafe.cafeName,
+          location: mycafe.location,
+          bsNum: mycafe.businessNum,
+          expire: mycafe.expireDate,
+          icon: mycafe.icon,
+          img: mycafe.img,
+          phone: owner.ownerPhone,
+        },
       });
     } else {
       return res.status(403).json({
