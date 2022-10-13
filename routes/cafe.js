@@ -6,7 +6,7 @@ const {
   updatecafe,
   removecafe,
 } = require("../controllers/cafe");
-const { verifyToken } = require("../middlewares/middleware");
+const { verifyToken, upload } = require("../middlewares/middleware");
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ router.get("/check-cafe/:cafeName", verifyToken, checkCafeName);
 // 내 카페 정보 조회
 router.get("/info", verifyToken, cafeinfo);
 // 내 카페 정보 수정
-router.put("/update-cafe", verifyToken, updatecafe);
+router.put("/update-cafe", verifyToken, upload.array("image"), updatecafe);
 // 내 카페 삭제
 router.delete("/remove-cafe/:cafeName", verifyToken, removecafe);
 

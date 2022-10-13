@@ -8,6 +8,7 @@ module.exports = class Customer extends Sequelize.Model {
         custPhone: {
           type: Sequelize.STRING(13),
           allowNull: false,
+          primaryKey: true,
         },
       },
       {
@@ -24,7 +25,9 @@ module.exports = class Customer extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.Customer.hasMany(db.Stamp);
-    db.Customer.belongsTo(db.Cafe);
+    db.Customer.hasMany(db.Stamp, {
+      foreignKey: "custPhone",
+      targetKey: "custPhone",
+    });
   }
 };
