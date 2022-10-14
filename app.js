@@ -17,6 +17,7 @@ const profileRouter = require("./routes/profile");
 const findRouter = require("./routes/find");
 const stampRouter = require("./routes/stamp");
 const customerRouter = require("./routes/customer");
+const questionRouter = require("./routes/question");
 
 const resCode = require("./libs/error");
 const { sequelize } = require("./models");
@@ -66,6 +67,7 @@ app.use("/profile", profileRouter);
 app.use("/find", findRouter);
 app.use("/stamp", stampRouter);
 app.use("/customer", customerRouter);
+app.use("/question", questionRouter);
 
 // 404 NOT FOUND
 app.use((req, res, next) => {
