@@ -36,9 +36,5 @@ module.exports = class Stamp extends Sequelize.Model {
 
   static associate(db) {
     db.Stamp.belongsTo(db.Cafe);
-    db.Stamp.hasMany(db.Customer, {
-      foreignKey: "custPhone",
-      targetKey: "custPhone",
-    });
   }
 };
