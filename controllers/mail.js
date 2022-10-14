@@ -1,5 +1,6 @@
 const { getAuthCode, makeEmail } = require("../libs/util");
 const { Owner } = require("../models");
+const resCode = require("../libs/error");
 const bcrypt = require("bcrypt");
 
 exports.emailsender = async (req, res, next) => {

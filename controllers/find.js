@@ -1,5 +1,6 @@
 const { makeEmail, getTempPassword } = require("../libs/util");
 const { Owner } = require("../models");
+const resCode = require("../libs/error");
 
 exports.sendUserId = async (req, res, next) => {
   try {
