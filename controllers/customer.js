@@ -1,4 +1,5 @@
 const { Stamp } = require("../models");
+const resCode = require("../libs/error");
 
 // 카페마다의 고객정보를 조회할 수 있다.
 exports.infoCustomer = async (req, res, next) => {
