@@ -10,7 +10,7 @@ exports.emailsender = async (req, res, next) => {
     // 유저 메일 중복 예외 처리
     if (owner) {
       const error = resCode.BAD_REQUEST_EXIESTED;
-      return res.status(error.code).json({ error });
+      return res.status(error.code).json(error);
     }
     const code = getAuthCode();
     if (code && email) {
@@ -27,17 +27,10 @@ exports.emailsender = async (req, res, next) => {
       console.log(hashCode);
       const info = await emailMaker[0].sendMail(emailMaker[1]);
       console.log("메일 정보: ", info);
-      const response = resCode.REQEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.hash = hashCode;
       response.email = email;
       return res.status(response.code).json(response);
-      // return res.status(200).json({
-      //   message: "Sending Success",
-      //   user: {
-      //     hash: hashCode,
-      //     email,
-      //   },
-      // });
     }
   } catch (error) {
     console.error("ERROR :", error);
@@ -52,7 +45,7 @@ exports.emailauth = async (req, res, next) => {
     const result = await bcrypt.compare(code, hash);
     console.log(result);
     if (result) {
-      const response = resCode.REQEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.email = email;
       return res.status(response.code).json(response);
     } else {

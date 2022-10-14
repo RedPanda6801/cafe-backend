@@ -19,12 +19,12 @@ exports.checkStamp = async (req, res, next) => {
         visit: 0,
         memo: "",
       });
-      response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.stamp = newStamp;
       response.message = "Create Success";
       return res.status(response.code).json(response);
     } else {
-      response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.stamp = this.useStamp;
       response.message = "Search Success";
       return res.status(response.code).json(response);
@@ -81,7 +81,7 @@ exports.useStamp = async (req, res, next) => {
       return res.status(response.code).json(response);
     } else {
       if (stamp.leftStamp < 10) {
-        const error = JSON.parse(JSON.stringify(resCode.BAD_REQEST_LACK_DATA));
+        const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_LACK_DATA));
         error.message = "Not Enough Stamp";
         return res.status(error.status).json(error);
       } else {
@@ -93,7 +93,7 @@ exports.useStamp = async (req, res, next) => {
             where: { custPhone, CafeId: cafeId },
           }
         );
-        const response = resCode.REQEST_SUCCESS;
+        const response = resCode.REQUEST_SUCCESS;
         return res.status(response.code).json(response);
       }
     }

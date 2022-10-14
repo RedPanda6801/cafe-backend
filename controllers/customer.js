@@ -8,13 +8,13 @@ exports.infoCustomer = async (req, res, next) => {
 
     const custStamp = await Stamp.findAll({ where: { CafeId: cafeId } });
     if (custStamp.length) {
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       response.customers = custStamp;
       return res.status(response.code).json(response);
     } else {
       console.log("No Customer in your Cafe");
       const error = resCode.BAD_REQUEST_NO_USER;
-      return res.status(error.code).json({ error });
+      return res.status(error.code).json(error);
     }
   } catch (error) {
     console.error("ERROR :", error);

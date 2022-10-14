@@ -1,5 +1,5 @@
 const resCode = {
-  REQEST_SUCCESS: {
+  REQUEST_SUCCESS: {
     code: 200,
     message: "Successful Request",
   },
@@ -7,7 +7,7 @@ const resCode = {
     code: 204,
     message: "No Search Data",
   },
-  BAD_REQEST_LACK_DATA: {
+  BAD_REQUEST_LACK_DATA: {
     code: 400,
     message: "More Data is Required!",
   },
@@ -19,7 +19,7 @@ const resCode = {
     code: 400,
     message: "Data Already Existed!",
   },
-  BAD_REQEST_WRONG_DATA: {
+  BAD_REQUEST_WRONG_DATA: {
     code: 400,
     message: "Request Failed",
   },
