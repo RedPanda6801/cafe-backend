@@ -3,26 +3,26 @@ const Owner = require("../models/owner");
 const { getExpireDate } = require("../libs/util");
 const resCode = require("../libs/error");
 
-exports.cafeinfo = async (req, res) => {
+exports.cafeinfo = async (req, res, next) => {
   try {
     const mycafes = await Cafe.findAll({ where: { id: req.decoded.id } });
     // 카페 확인
     const response = {};
     if (mycafes === []) {
-      response = resCode.NO_SEARCH_DATA;
+      response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
-      response = resCode.REQEST_SUCCESS;
+      response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
     }
     response.data = mycafes;
     return res.status(response.code).json(response);
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
 
-exports.addCafe = async (req, res) => {
+exports.addCafe = async (req, res, next) => {
   try {
     // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
     const { cafeName, location, businessNum, subscribeDate } = req.body;
@@ -41,18 +41,18 @@ exports.addCafe = async (req, res) => {
       const error = resCode.BAD_REQEST_WRONG_DATA;
       return res.status(error.code).json(error);
     } else {
-      const response = resCode.REQEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
       response.cafe = cafeData;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
 
-exports.updatecafe = async (req, res) => {
+exports.updatecafe = async (req, res, next) => {
   try {
     // 수정할 값은 하나만 들어와도 수정되어야 한다.
     const { cafeName, location, businessNum } = req.body;
@@ -85,57 +85,55 @@ exports.updatecafe = async (req, res) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
 
 // 여기부터 내일 해야함
-exports.removecafe = async (req, res) => {
+exports.removecafe = async (req, res, next) => {
   try {
-    const { cafeName } = req.params;
-    console.log(cafeName);
-    const cafe = await Cafe.findOne({ where: { cafeName } });
-    console.log(cafe);
-    if (!cafe.id) {
-      await Cafe.destroy({ where: { cafeName } });
-      res.status(200).json({
-        message: "Remove Success",
-      });
+    // 카페가 있는지 확인해야하나?
+    const { cafeId } = req.params;
+    // DB에서 삭제
+    if (
+      !(await Cafe.destroy({
+        where: { id: cafeId, OwnerId: req.decoded.id },
+      }))
+    ) {
+      const error = resCode.UNAUTHORIZED_ERROR;
+      res.status(error.code).json(error);
     } else {
-      console.log("cafeName error");
-      res.status(400).json({
-        message: "cafeName Error",
-      });
+      // 카페 아이디와 점주가 카페 DB에 있으면 삭제
+      const response = resCode.REQEST_SUCCESS;
+      res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
-// 카페이름 중복 확인 API, 사용 여부 확인 필요
-exports.checkCafeName = async (req, res) => {
+// 카페 중복 확인 API
+exports.checkCafe = async (req, res, next) => {
   try {
     // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
     const { cafeName } = req.params;
-    const cafe = await Cafe.findOne({ where: { cafeName } });
-    if (cafe.cafeName === cafeName) {
-      return res.status(400).json({
-        message: "Name Already Existed",
-      });
+    const cafe = await Cafe.findOne({
+      where: { cafeName, OwnerId: req.decoded.id },
+    });
+    if (cafe) {
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      return res.status(error.code).json(error);
     } else {
-      return res.status(200).json({
-        message: "Name Check Success",
-      });
+      const response = resCode.NO_SEARCH_DATA;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };

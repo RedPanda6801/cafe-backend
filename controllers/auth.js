@@ -6,7 +6,7 @@ const resCode = require("../libs/error");
 
 const mailList = ["naver", "daum", "gmail", "kakao", "hanmail"];
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
     const { email, password, userId, name, phone } = req.body;
     // body 확인 예외처리
@@ -18,7 +18,7 @@ exports.signup = async (req, res) => {
     // 유효 도메인 확인 예외 처리
     const provider = email.split("@")[1].split(".")[0];
     if (!mailList.find((mail) => mail === provider)) {
-      const error = resCode.BAD_REQEST_WRONG_DATA;
+      const error = JSON.parse(JSON.stringify(resCode.BAD_REQEST_WRONG_DATA));
       error.message = "Doamin didn't Provided";
       console.log("ERROR :", error.message);
       return res.status(error.code).json(error);
@@ -30,7 +30,7 @@ exports.signup = async (req, res) => {
       return res.status(error.code).json(error);
     } else {
       // 관리자 권한 부여
-      isManger = name == "root" ? true : false;
+      isManager = name == "root" ? true : false;
       // password 암호화
       const hash = await bcrypt.hash(password, 12);
       await Owner.create({
@@ -47,7 +47,7 @@ exports.signup = async (req, res) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
@@ -61,7 +61,7 @@ exports.signin = async (req, res, next) => {
     }
     if (!user) {
       const error = resCode.BAD_REQUEST_NO_USER;
-      console.log("ERROR :", error.message);
+      console.error("ERROR :", error.message);
       return res.status(error.code).json(error);
     }
     return req.login(user, (loginError) => {
@@ -82,14 +82,14 @@ exports.signin = async (req, res, next) => {
         }
       );
       req.session.jwt = token;
-      const response = resCode.REQEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
       response.token = token;
       return res.status(response.code).json(response);
     });
   })(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙입니다.
 };
 
-exports.checkEmail = async (req, res) => {
+exports.checkEmail = async (req, res, next) => {
   try {
     const { email } = req.params;
     if (await Owner.findOne({ where: { email } })) {
@@ -101,12 +101,12 @@ exports.checkEmail = async (req, res) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
-exports.checkUserId = async (req, res) => {
+exports.checkUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
     if (await Owner.findOne({ where: { userId } })) {
@@ -118,7 +118,7 @@ exports.checkUserId = async (req, res) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
