@@ -3,12 +3,13 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const resCode = require("../libs/error");
+const { json } = require("sequelize");
 
 const mailList = ["naver", "daum", "gmail", "kakao", "hanmail"];
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password, userId, name, phone } = req.body;
+    const { email, password, userId, name, isManager, phone } = req.body;
     // body 확인 예외처리
     if (!email || !password || !userId || !name || !phone) {
       const error = resCode.BAD_REQEST_LACK_DATA;
@@ -82,7 +83,7 @@ exports.signin = async (req, res, next) => {
         }
       );
       req.session.jwt = token;
-      const response = resCode.REQEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
       response.token = token;
       return res.status(response.code).json(response);
     });

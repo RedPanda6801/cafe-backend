@@ -1,4 +1,6 @@
 const { Question } = require("../models");
+const { Owner } = require("../models");
+
 const resCode = require("../libs/error");
 
 exports.addquestion = async (req, res, next) => {
@@ -31,17 +33,17 @@ exports.addquestion = async (req, res, next) => {
 
 exports.questioninfo = async (req, res, next) => {
   try {
-    const myquestions = await Question.findOne({
-      where: { id: req.decoded.id },
+    const OwnerId = req.decoded.id;
+    const myquestions = await Question.findAll({
+      where: { OwnerId },
     });
     // 질문 확인
-    const response = {};
     if (myquestions === []) {
       response = resCode.NO_SEARCH_DATA;
     } else {
       response = resCode.REQEST_SUCCESS;
     }
-    response.data = mycafes;
+    response.data = myquestions;
     return res.status(response.code).json(response);
   } catch (error) {
     console.error("ERROR :", error);
@@ -55,24 +57,23 @@ exports.updatequestion = async (req, res, next) => {
     // 수정할 값은 하나만 들어와도 수정되어야 한다.
     const { category, title, text } = req.body;
     const { questionId } = req.params;
+    const question = await Question.findOne({
+      where: { id: questionId, OwnerId: req.decoded.id },
+    });
 
-    if (
-      !(await Question.findOne({
-        where: { id: questionId, OwnerId: req.decoded.id },
-      }))
-    ) {
+    if (!question) {
       const response = resCode.NO_SEARCH_DATA;
       console.log(response.message);
       return res.status(response.code).json(response);
     } else {
-      await Cafe.update(
+      await Question.update(
         {
           category: category ? category : question.category,
           title: title ? title : question.title,
           text: text ? text : question.text,
         },
         {
-          where: { id: req.decoded.id },
+          where: { id: questionId },
         }
       );
       const response = resCode.REQEST_SUCCESS;
@@ -88,9 +89,13 @@ exports.updatequestion = async (req, res, next) => {
 // 여기부터 내일 해야함
 exports.removequestion = async (req, res, next) => {
   try {
-    const question = await Question.findOne({ where: { id: questionId } });
-    if (!question.id) {
-      await Question.destroy({ where: { questionId } });
+    const { questionId } = req.params;
+    const question = await Question.findOne({
+      where: { id: questionId, OwnerId: req.decoded.id },
+    });
+    console.log(question);
+    if (question.id) {
+      await Question.destroy({ where: { id: questionId } });
       const response = resCode.REQEST_SUCCESS;
       return res.status(response.code).json(response);
     } else {
