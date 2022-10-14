@@ -10,7 +10,7 @@ exports.Ownerinfo = async (req, res, next) => {
       console.error("ERROR RESPONSE -", error.message);
       return res.status(error.code).json(error);
     } else {
-      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.data = myprofile;
       return res.status(response.code).json(response);
     }
@@ -26,7 +26,8 @@ exports.updateOwner = async (req, res, next) => {
     const passwordEncoding = "";
     // password가 있으면 암호화 시켜야함
     if (password) passwordEncoding = await bcrypt.hash(password, 12);
-    if (!(await Owner.findOne({ where: { id: req.decoded.id } }))) {
+    const owner = await Owner.findOne({ where: { id: req.decoded.id } });
+    if (!owner) {
       const error = resCode.UNAUTHORIZED_ERROR;
       console.error("ERROR RESPONSE -", error.message);
       return res.status(error.code).json(error);
@@ -42,11 +43,11 @@ exports.updateOwner = async (req, res, next) => {
           }
         ))
       ) {
-        const error = resCode.BAD_REQEST_WRONG_DATA;
+        const error = resCode.BAD_REQUEST_WRONG_DATA;
         console.error("ERROR RESPONSE -", error.message);
         return res.status(error.code).json(error);
       } else {
-        const response = resCode.REQEST_SUCCESS;
+        const response = resCode.REQUEST_SUCCESS;
         return res.status(response.code).json(response);
       }
     }
@@ -67,17 +68,19 @@ exports.withdrawOwner = async (req, res, next) => {
       return res.status(error.status).json(error);
     } else {
       if (!(await bcrypt.compare(password, owner.password))) {
-        const error = JSON.parse(JSON.stringify(resCode.BAD_REQEST_WRONG_DATA));
+        const error = JSON.parse(
+          JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
+        );
         error.message = "Password Error";
         console.error("ERROR RESPONSE -", error.message);
         return res.status(error.status).json(error);
       } else {
         if (!(await Owner.destroy({ where: { email, id: req.decoded.id } }))) {
-          const error = resCode.BAD_REQEST_WRONG_DATA;
+          const error = resCode.BAD_REQUEST_WRONG_DATA;
           console.error("ERROR RESPONSE -", error);
           return res.status(error.code).json(error);
         } else {
-          const response = resCode.REQEST_SUCCESS;
+          const response = resCode.REQUEST_SUCCESS;
           return res.status(response.code).json(response);
         }
       }

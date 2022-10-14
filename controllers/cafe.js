@@ -11,7 +11,7 @@ exports.cafeinfo = async (req, res, next) => {
     if (mycafes === []) {
       response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
-      response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
     }
     response.data = mycafes;
     return res.status(response.code).json(response);
@@ -38,10 +38,10 @@ exports.addCafe = async (req, res, next) => {
     const cafeData = newCafe.dataValues;
     // 카페 생성 확인 예외처리
     if (!cafeData || cafeData === {}) {
-      const error = resCode.BAD_REQEST_WRONG_DATA;
+      const error = resCode.BAD_REQUEST_WRONG_DATA;
       return res.status(error.code).json(error);
     } else {
-      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.cafe = cafeData;
       return res.status(response.code).json(response);
     }
@@ -62,9 +62,10 @@ exports.updatecafe = async (req, res, next) => {
     const icon = formData[1] && formData[1].filename;
     const img = formData[0] && formData[0].filename;
 
-    if (
-      !(await Cafe.findOne({ where: { id: cafeId, OwnerId: req.decoded.id } }))
-    ) {
+    const cafe = await Cafe.findOne({
+      where: { id: cafeId, OwnerId: req.decoded.id },
+    });
+    if (!cafe) {
       const response = resCode.NO_SEARCH_DATA;
       console.log(response.message);
       return res.status(response.code).json(response);
@@ -81,7 +82,7 @@ exports.updatecafe = async (req, res, next) => {
           where: { id: req.decoded.id },
         }
       );
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
@@ -106,7 +107,7 @@ exports.removecafe = async (req, res, next) => {
       res.status(error.code).json(error);
     } else {
       // 카페 아이디와 점주가 카페 DB에 있으면 삭제
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       res.status(response.code).json(response);
     }
   } catch (error) {

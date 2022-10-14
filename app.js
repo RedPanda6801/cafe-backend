@@ -4,7 +4,6 @@ const morgan = require("morgan");
 const path = require("path");
 const dotenv = require("dotenv");
 const session = require("express-session");
-const passport = require("passport");
 const cors = require("cors");
 
 dotenv.config();
@@ -20,10 +19,8 @@ const customerRouter = require("./routes/customer");
 
 const resCode = require("./libs/error");
 const { sequelize } = require("./models");
-const passportConfig = require("./passport");
 
 const app = express();
-passportConfig();
 app.set("port", process.env.PORT || 8002);
 sequelize
   .sync({ force: false })
@@ -55,9 +52,6 @@ app.use(
     },
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
-
 // 라우터 설정
 app.use("/mail", mailRouter);
 app.use("/auth", authRouter);
@@ -69,10 +63,9 @@ app.use("/customer", customerRouter);
 
 // 404 NOT FOUND
 app.use((req, res, next) => {
-  console.log("error");
+  console.log(req.query.error);
   if (res.statusCode !== 500) {
     const error = resCode.NOT_FOUND;
-    console.log(error.name);
     return res.status(error.code).json(error);
   } else next();
 });
