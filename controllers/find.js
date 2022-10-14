@@ -1,7 +1,7 @@
 const { makeEmail, getTempPassword } = require("../libs/util");
 const { Owner } = require("../models");
 
-exports.sendUserId = async (req, res) => {
+exports.sendUserId = async (req, res, next) => {
   try {
     const { email } = req.params;
     const owner = await Owner.findOne({ where: { email } });
@@ -15,34 +15,23 @@ exports.sendUserId = async (req, res) => {
       <h3>로그인을 원하신다면 다시 로그인을 시도해주세요.</h3>`;
 
       const emailMaker = makeEmail(html, subject, email);
-      try {
-        info = await emailMaker[0].sendMail(emailMaker[1]);
-        console.log("Mail Info : response -", info);
-        return res.status(200).json({
-          message: "Sending Success",
-        });
-      } catch (error) {
-        console.log("Email Send Error : response -", error);
-        return res.status(400).json({
-          message: "Email Send Error",
-        });
-      }
+      info = await emailMaker[0].sendMail(emailMaker[1]);
+      console.log("Mail Info : response -", info);
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     } else {
       // 이메일이 없다면
-      console.log("No Owner in DB");
-      return res.status(400).json({
-        message: "No Owner",
-      });
+      const error = resCode.BAD_REQUEST_NO_USER;
+      return res.status(error.code).json({ error });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
-exports.findPassword = async (req, res) => {
+exports.findPassword = async (req, res, next) => {
   try {
     const { email, name, userId } = req.body;
     const owner = await Owner.findOne({
@@ -61,28 +50,17 @@ exports.findPassword = async (req, res) => {
       <h3>로그인 후에 반드시 비밀번호를 변경해주세요.</h3>  `;
       const subject = "비밀번호 변경 메일 - 감자 카페";
       const emailMaker = makeEmail(html, subject, owner.email);
-      try {
-        const info = emailMaker[0].sendMail(emailMaker[1]);
-        console.log("Mail Info : ", info);
-        return res.status(200).json({
-          message: "Sending Sucess",
-        });
-      } catch (error) {
-        console.log(error);
-        return res.status(400).json({
-          message: "Email Send Failed",
-        });
-      }
+      const info = emailMaker[0].sendMail(emailMaker[1]);
+      console.log("Mail Info : ", info);
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     } else {
-      console.log("No User");
-      return res.status(400).json({
-        message: "No User",
-      });
+      const error = resCode.BAD_REQUEST_NO_USER;
+      return res.status(error.code).json({ error });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };

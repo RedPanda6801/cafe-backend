@@ -2,12 +2,14 @@ const { getAuthCode, makeEmail } = require("../libs/util");
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
 
-exports.emailsender = async (req, res) => {
+exports.emailsender = async (req, res, next) => {
   try {
     const { email } = req.params;
     const owner = await Owner.findOne({ where: { email } });
+    // 유저 메일 중복 예외 처리
     if (owner) {
-      return res.status(400).json({ message: "Already User Existed" });
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      return res.status(error.code).json({ error });
     }
     const code = getAuthCode();
     if (code && email) {
@@ -22,51 +24,43 @@ exports.emailsender = async (req, res) => {
       // LocalStorage에 저장하되, 암호화하여 저장 -> 코드 인증 시에 복호화하여 비교
       const hashCode = await bcrypt.hash(code, 12);
       console.log(hashCode);
-      try {
-        const info = await emailMaker[0].sendMail(emailMaker[1]);
-        console.log("메일 정보: ", info);
-        return res.status(200).json({
-          message: "Sending Success",
-          user: {
-            hash: hashCode,
-            email,
-          },
-        });
-      } catch (error) {
-        console.log(error);
-        return res.status(400).json({
-          message: "Email Sending Failed",
-        });
-      }
+      const info = await emailMaker[0].sendMail(emailMaker[1]);
+      console.log("메일 정보: ", info);
+      const response = resCode.REQEST_SUCCESS;
+      response.hash = hashCode;
+      response.email = email;
+      return res.status(response.code).json(response);
+      // return res.status(200).json({
+      //   message: "Sending Success",
+      //   user: {
+      //     hash: hashCode,
+      //     email,
+      //   },
+      // });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
-
-exports.emailauth = async (req, res) => {
+exports.emailauth = async (req, res, next) => {
   try {
     const { email, code, hash } = req.body;
     // 복호화 해줌
     const result = await bcrypt.compare(code, hash);
     console.log(result);
     if (result) {
-      return res.status(200).json({
-        message: "Decoding Success",
-        email,
-      });
+      const response = resCode.REQEST_SUCCESS;
+      response.email = email;
+      return res.status(response.code).json(response);
     } else {
-      return res.status(401).json({
-        message: "Decoding Failed",
-      });
+      const error = resCode.FORBIDDEN_ERROR;
+      return res.status(response.code).json(error);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
