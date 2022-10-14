@@ -1,92 +1,90 @@
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
+const resCode = require("../libs/error");
 
-exports.Ownerinfo = async (req, res) => {
+exports.Ownerinfo = async (req, res, next) => {
   try {
     const myprofile = await Owner.findOne({ where: { id: req.decoded.id } });
-    console.log(myprofile);
-    if (myprofile) {
-      return res.status(200).json({
-        message: "Profile Success",
-        user: myprofile,
-      });
+    if (!myprofile) {
+      const error = resCode.BAD_REQUEST_NO_USER;
+      console.error("ERROR RESPONSE -", error.message);
+      return res.status(error.code).json(error);
     } else {
-      return res.status(403).json({
-        message: "Forbidden",
-      });
+      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
+      response.data = myprofile;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };
-exports.updateOwner = async (req, res) => {
+exports.updateOwner = async (req, res, next) => {
   try {
     const { password, ownerPhone } = req.body;
     const passwordEncoding = "";
+    // password가 있으면 암호화 시켜야함
     if (password) passwordEncoding = await bcrypt.hash(password, 12);
-    const owner = await Owner.findOne({ where: { id: req.decoded.id } });
-    if (owner) {
-      const renewOwner = await Owner.update(
-        {
-          password: passwordEncoding ? passwordEncoding : owner.password,
-          ownerPhone: ownerPhone ? ownerPhone : owner.ownerPhone,
-        },
-        {
-          where: { id: req.decoded.id },
-        }
-      );
-      if (renewOwner) {
-        return res.status(200).json({
-          message: "Update Success",
-        });
-      } else {
-        return res.status(400).json({
-          message: "Update Failed",
-        });
-      }
+    if (!(await Owner.findOne({ where: { id: req.decoded.id } }))) {
+      const error = resCode.UNAUTHORIZED_ERROR;
+      console.error("ERROR RESPONSE -", error.message);
+      return res.status(error.code).json(error);
     } else {
-      return res.status(403).json({
-        message: "Forbidden",
-      });
+      if (
+        !(await Owner.update(
+          {
+            password: passwordEncoding ? passwordEncoding : owner.password,
+            ownerPhone: ownerPhone ? ownerPhone : owner.ownerPhone,
+          },
+          {
+            where: { id: req.decoded.id },
+          }
+        ))
+      ) {
+        const error = resCode.BAD_REQEST_WRONG_DATA;
+        console.error("ERROR RESPONSE -", error.message);
+        return res.status(error.code).json(error);
+      } else {
+        const response = resCode.REQEST_SUCCESS;
+        return res.status(response.code).json(response);
+      }
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };
-exports.withdrawOwner = async (req, res) => {
+exports.withdrawOwner = async (req, res, next) => {
   try {
-    // body에 담아도 된다면 바디로 수정
     const { email, password } = req.params;
-    const owner = await Owner.findOne({ where: { email } });
-    if (owner.id === req.decoded.id) {
-      const auth = await bcrypt.compare(password, owner.password);
-      if (auth) {
-        await Owner.destroy({ where: { email } });
-        res.status(200).json({
-          message: "점주 삭제 성공",
-        });
-      } else {
-        console.log("password error");
-        res.status(400).json({
-          message: "Password Error",
-        });
-      }
+
+    const owner = await Owner.findOne({ where: { email, id: req.decoded.id } });
+    if (!owner) {
+      const error = resCode.FORBIDDEN_ERROR;
+      console.error("ERROR RESPONSE -", error.message);
+      return res.status(error.status).json(error);
     } else {
-      console.log("Forbidden Error");
-      return res.status(403).json({
-        message: "Forbidden",
-      });
+      if (!(await bcrypt.compare(password, owner.password))) {
+        const error = JSON.parse(JSON.stringify(resCode.BAD_REQEST_WRONG_DATA));
+        error.message = "Password Error";
+        console.error("ERROR RESPONSE -", error.message);
+        return res.status(error.status).json(error);
+      } else {
+        if (!(await Owner.destroy({ where: { email, id: req.decoded.id } }))) {
+          const error = resCode.BAD_REQEST_WRONG_DATA;
+          console.error("ERROR RESPONSE -", error);
+          return res.status(error.code).json(error);
+        } else {
+          const response = resCode.REQEST_SUCCESS;
+          return res.status(response.code).json(response);
+        }
+      }
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };

@@ -31,6 +31,7 @@ const resCode = {
   },
   UNAUTHORIZED_ERROR: {
     code: 403,
+    message: "Unauthorized User",
   },
   TYPE_ERROR: {
     code: 500,

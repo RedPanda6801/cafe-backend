@@ -69,22 +69,23 @@ app.use("/customer", customerRouter);
 
 // 404 NOT FOUND
 app.use((req, res, next) => {
+  console.log("error");
   if (res.statusCode !== 500) {
     const error = resCode.NOT_FOUND;
-    console.log(error.message);
+    console.log(error.name);
     return res.status(error.code).json(error);
   } else next();
 });
 
 app.use((err, req, res, next) => {
-  res.locals.message = err.message;
   console.log(err);
+  res.locals.message = err.message;
+  const response = {};
+  if (err.name === "SequelizeDatabaseError") {
+    response.message = "DB ERROR";
+  }
   res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
-  res.status(err.status || 500);
-  res.json({
-    code: 500,
-    message: "서버 오류",
-  });
+  res.status(err.status || 500).json(response || err);
 });
 
 app.listen(app.get("port"), () => {
