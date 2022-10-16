@@ -18,12 +18,12 @@ exports.sendUserId = async (req, res, next) => {
       const emailMaker = makeEmail(html, subject, email);
       info = await emailMaker[0].sendMail(emailMaker[1]);
       console.log("Mail Info : response -", info);
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     } else {
       // 이메일이 없다면
       const error = resCode.BAD_REQUEST_NO_USER;
-      return res.status(error.code).json({ error });
+      return res.status(error.code).json(error);
     }
   } catch (error) {
     console.error("ERROR :", error);
@@ -53,11 +53,11 @@ exports.findPassword = async (req, res, next) => {
       const emailMaker = makeEmail(html, subject, owner.email);
       const info = emailMaker[0].sendMail(emailMaker[1]);
       console.log("Mail Info : ", info);
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     } else {
       const error = resCode.BAD_REQUEST_NO_USER;
-      return res.status(error.code).json({ error });
+      return res.status(error.code).json(error);
     }
   } catch (error) {
     console.error("ERROR :", error);

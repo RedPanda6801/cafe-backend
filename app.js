@@ -4,7 +4,6 @@ const morgan = require("morgan");
 const path = require("path");
 const dotenv = require("dotenv");
 const session = require("express-session");
-const passport = require("passport");
 const cors = require("cors");
 
 dotenv.config();
@@ -21,10 +20,8 @@ const questionRouter = require("./routes/question");
 
 const resCode = require("./libs/error");
 const { sequelize } = require("./models");
-const passportConfig = require("./passport");
 
 const app = express();
-passportConfig();
 app.set("port", process.env.PORT || 8002);
 sequelize
   .sync({ force: false })
@@ -56,9 +53,6 @@ app.use(
     },
   })
 );
-app.use(passport.initialize());
-app.use(passport.session());
-
 // 라우터 설정
 app.use("/mail", mailRouter);
 app.use("/auth", authRouter);
@@ -71,22 +65,22 @@ app.use("/question", questionRouter);
 
 // 404 NOT FOUND
 app.use((req, res, next) => {
+  console.log(req.query.error);
   if (res.statusCode !== 500) {
     const error = resCode.NOT_FOUND;
-    console.log(error.message);
     return res.status(error.code).json(error);
   } else next();
 });
 
 app.use((err, req, res, next) => {
-  res.locals.message = err.message;
   console.log(err);
+  res.locals.message = err.message;
+  const response = {};
+  if (err.name === "SequelizeDatabaseError") {
+    response.message = "DB ERROR";
+  }
   res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
-  res.status(err.status || 500);
-  res.json({
-    code: 500,
-    message: "서버 오류",
-  });
+  res.status(err.status || 500).json(response || err);
 });
 
 app.listen(app.get("port"), () => {

@@ -1,12 +1,14 @@
 const { Stamp } = require("../models");
+const resCode = require("../libs/error");
 
-exports.checkStamp = async (req, res) => {
+exports.checkStamp = async (req, res, next) => {
   try {
     const { custPhone, cafeId } = req.params;
 
     const userStamp = await Stamp.findOne({
       where: { custPhone, CafeId: cafeId },
     });
+    const response = {};
     // 스탬프를 조회해서 없다면 스탬프 추가
     if (!userStamp) {
       const newStamp = await Stamp.create({
@@ -17,32 +19,35 @@ exports.checkStamp = async (req, res) => {
         visit: 0,
         memo: "",
       });
-      return res.status(200).json({
-        message: "Create Stamp Success",
-        stamp: newStamp,
-      });
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
+      response.stamp = newStamp;
+      response.message = "Create Success";
+      return res.status(response.code).json(response);
     } else {
-      return res.status(200).json({
-        message: "Search Stamp Scuccess",
-        stamp: userStamp,
-      });
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
+      response.stamp = this.useStamp;
+      response.message = "Search Success";
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
-exports.addstamp = async (req, res) => {
+exports.addstamp = async (req, res, next) => {
   try {
     const { custPhone, cafeId } = req.params;
     // url로 도장 개수를 강제로 추가하는 방법을 제한함
     const { addCount } = req.body;
 
     const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
-    if (stamp) {
+    if (!stamp) {
+      const response = resCode.NO_SEARCH_DATA;
+      console.log("NO DATA RESPONSE -", response.message);
+      return res.status(response.code).json(response);
+    } else {
       Stamp.update(
         {
           stackStamp: stamp.stackStamp + addCount,
@@ -53,55 +58,48 @@ exports.addstamp = async (req, res) => {
           where: { custPhone, CafeId: cafeId },
         }
       );
-      return res.status(200).json({
-        message: "Adding Stamp Success",
-      });
-    } else {
-      return res.status(400).json({
-        message: "Customer didn't have Stamp",
-      });
+      const response = resCode.REQEST_SUCCESS;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
-exports.useStamp = async (req, res) => {
+exports.useStamp = async (req, res, next) => {
   try {
     const { custPhone, cafeId } = req.params;
     // url로 도장 개수를 강제로 추가하는 방법을 제한함
     const { useCount } = req.body;
 
     const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
-    if (stamp) {
-      if (stamp.leftStamp < 10) {
-        return res.status(400).json({
-          message: "Not Enough Stamp",
-        });
-      }
-      Stamp.update(
-        {
-          leftStamp: stamp.leftStamp - useCount * 10,
-        },
-        {
-          where: { custPhone, CafeId: cafeId },
-        }
-      );
-      return res.status(200).json({
-        message: "Using Stamp Success",
-      });
+    if (!stamp) {
+      const response = resCode.NO_SEARCH_DATA;
+      console.log("NO DATA RESPONSE -", response.message);
+      return res.status(response.code).json(response);
     } else {
-      return res.status(400).json({
-        message: "Customer didn't have Stamp",
-      });
+      if (stamp.leftStamp < 10) {
+        const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_LACK_DATA));
+        error.message = "Not Enough Stamp";
+        return res.status(error.status).json(error);
+      } else {
+        Stamp.update(
+          {
+            leftStamp: stamp.leftStamp - useCount * 10,
+          },
+          {
+            where: { custPhone, CafeId: cafeId },
+          }
+        );
+        const response = resCode.REQUEST_SUCCESS;
+        return res.status(response.code).json(response);
+      }
     }
   } catch (error) {
-    console.log(error);
-    return res.status(404).json({
-      message: "Not Found",
-    });
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
   }
 };

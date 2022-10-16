@@ -8,24 +8,13 @@ const router = express.Router();
 router.get(
   "/search/:custPhone/:cafeId",
   verifyToken,
-  checkCustomer, // 고객 초기화
   checkStamp // 쿠폰 초기화
 );
 
 // 쿠폰 추가
-router.put(
-  "/add-stamp/:custPhone/:cafeId",
-  verifyToken,
-  checkCustomer,
-  addstamp
-);
+router.put("/add-stamp/:custPhone/:cafeId", verifyToken, addstamp);
 
 // 쿠폰 사용
-router.put(
-  "/use-stamp/:custPhone/:cafeId",
-  verifyToken,
-  checkCustomer,
-  useStamp
-);
+router.put("/use-stamp/:custPhone/:cafeId", verifyToken, useStamp);
 
 module.exports = router;
