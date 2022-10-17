@@ -1,25 +1,23 @@
 const { Owner } = require("../models");
 const bcrypt = require("bcrypt");
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const resCode = require("../libs/error");
-const { json } = require("sequelize");
 
 const mailList = ["naver", "daum", "gmail", "kakao", "hanmail"];
 
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   try {
-    const { email, password, userId, name, isManager, phone } = req.body;
+    const { email, password, userId, name, phone } = req.body;
     // body 확인 예외처리
     if (!email || !password || !userId || !name || !phone) {
-      const error = resCode.BAD_REQEST_LACK_DATA;
+      const error = resCode.BAD_REQUEST_LACK_DATA;
       console.log("ERROR :", error.message);
       return res.status(error.code).json(error);
     }
     // 유효 도메인 확인 예외 처리
     const provider = email.split("@")[1].split(".")[0];
     if (!mailList.find((mail) => mail === provider)) {
-      const error = resCode.BAD_REQEST_WRONG_DATA;
+      const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA));
       error.message = "Doamin didn't Provided";
       console.log("ERROR :", error.message);
       return res.status(error.code).json(error);
@@ -31,7 +29,7 @@ exports.signup = async (req, res) => {
       return res.status(error.code).json(error);
     } else {
       // 관리자 권한 부여
-      isManger = name == "root" ? true : false;
+      isManager = name == "root" ? true : false;
       // password 암호화
       const hash = await bcrypt.hash(password, 12);
       await Owner.create({
@@ -44,53 +42,81 @@ exports.signup = async (req, res) => {
         isManager,
         password: hash,
       });
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
 
 exports.signin = async (req, res, next) => {
-  passport.authenticate("local", (authError, user, info) => {
-    if (authError) {
-      console.error("ERROR :", authError);
-      return res.status(404).json({ authError });
-    }
-    if (!user) {
-      const error = resCode.BAD_REQUEST_NO_USER;
-      console.log("ERROR :", error.message);
+  try {
+    const { userId, password } = req.body;
+    // 아이디, 비밀번호가 들어왔는지 확인
+    if (!userId || !password) {
+      const error = resCode.BAD_REQUEST_LACK_DATA;
+      console.error(error.message);
       return res.status(error.code).json(error);
     }
-    return req.login(user, (loginError) => {
-      if (loginError) {
-        console.error("ERROR :", loginError);
-        return next(loginError);
+    // 회원가입 정보를 확인
+    const owner = await Owner.findOne({ where: { userId } });
+    if (!owner) {
+      const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_NO_USER));
+      error.message = "User is not Joinned";
+      return res.status(error.code).json(error);
+    } else if (!(await bcrypt.compare(password, owner.password))) {
+      const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA));
+      error.message = "Wrong Password";
+      return res.status(error.code).json(error);
+    } else {
+      // 토큰을 가지고 있는 사용자인지 확인
+      if (req.session.jwt) {
+        const error = JSON.parse(
+          JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
+        );
+        error.message = "You are already Logged In!";
+        error.token = req.headers.authorization.split(" ")[1];
+        return res.status(error.code).json(error);
       }
       // 토큰 지급
-      const token = jwt.sign(
+      const accessToken = jwt.sign(
         {
-          id: user.id,
-          isManager: user.isManager,
+          id: owner.id,
+          isManager: owner.isManager,
         },
         process.env.JWT_SECRET,
         {
-          expiresIn: "30m", // 30분
+          expiresIn: "1440m", // 리프레시가 없을때 일단 이렇게 사용
           issuer: "Cafe Managers",
         }
       );
-      req.session.jwt = token;
-      const response = JSON.parse(JSON.stringify(resCode.REQEST_SUCCESS));
-      response.token = token;
+      // const refreashToken = jwt.sign(
+      //   {
+      //     id: owner.id,
+      //     isManager: owner.isManager,
+      //   },
+      //   process.env.JWT_SECRET,
+      //   {
+      //     expiresIn: "1440m", // refreashToken은 유효기간이 하루
+      //     issuer: "Cafe Managers",
+      //   }
+      // );
+      req.session.jwt = accessToken;
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
+      response.token = accessToken;
       return res.status(response.code).json(response);
-    });
-  })(req, res, next); // 미들웨어 내의 미들웨어에는 (req, res, next)를 붙입니다.
+    }
+  } catch (error) {
+    console.log("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
+  }
 };
 
-exports.checkEmail = async (req, res) => {
+exports.checkEmail = async (req, res, next) => {
   try {
     const { email } = req.params;
     if (await Owner.findOne({ where: { email } })) {
@@ -98,16 +124,16 @@ exports.checkEmail = async (req, res) => {
       console.error("ERROR :", error.message);
       return res.status(error.code).json(error);
     } else {
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
-exports.checkUserId = async (req, res) => {
+exports.checkUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
     if (await Owner.findOne({ where: { userId } })) {
@@ -115,11 +141,11 @@ exports.checkUserId = async (req, res) => {
       console.error(error.code);
       return res.status(error.code).json(error);
     } else {
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }

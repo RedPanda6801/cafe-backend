@@ -7,25 +7,23 @@ exports.addquestion = async (req, res, next) => {
   try {
     // 카테고리,제목, 내용
     const { category, title, text } = req.body;
-
-    const newQuesiton = await Question.create({
-      category: category,
-      title: title,
-      text: text,
-      OwnerId: req.decoded.id,
-    });
-    const questionData = newQuesiton.dataValues;
-    // 게시글 생성 확인 예외처리
-    if (!questionData || questionData === {}) {
-      const error = resCode.BAD_REQEST_WRONG_DATA;
+    if (!category || !title || !text) {
+      const error = resCode.BAD_REQUEST_LACK_DATA;
+      console.error(error.message);
       return res.status(error.code).json(error);
     } else {
-      const response = resCode.REQEST_SUCCESS;
+      const questionData = await Question.create({
+        category: category,
+        title: title,
+        text: text,
+        OwnerId: req.decoded.id,
+      });
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.question = questionData;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
@@ -39,14 +37,14 @@ exports.questioninfo = async (req, res, next) => {
     });
     // 질문 확인
     if (myquestions === []) {
-      response = resCode.NO_SEARCH_DATA;
+      response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
-      response = resCode.REQEST_SUCCESS;
+      response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
     }
     response.data = myquestions;
     return res.status(response.code).json(response);
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
@@ -76,34 +74,34 @@ exports.updatequestion = async (req, res, next) => {
           where: { id: questionId },
         }
       );
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
 };
 
-// 여기부터 내일 해야함
 exports.removequestion = async (req, res, next) => {
   try {
     const { questionId } = req.params;
-    const question = await Question.findOne({
-      where: { id: questionId, OwnerId: req.decoded.id },
-    });
-    console.log(question);
-    if (question.id) {
-      await Question.destroy({ where: { id: questionId } });
-      const response = resCode.REQEST_SUCCESS;
-      return res.status(response.code).json(response);
-    } else {
-      const error = resCode.BAD_REQEST_WRONG_DATA;
+    if (
+      !(await Question.findOne({
+        where: { id: questionId, OwnerId: req.decoded.id },
+      }))
+    ) {
+      const error = resCode.BAD_REQUEST_WRONG_DATA;
+      console.error(error.message);
       return res.status(error.code).json(error);
+    } else {
+      await Question.destroy({ where: { id: questionId } });
+      const response = resCode.REQUEST_SUCCESS;
+      return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR :", error);
+    console.error("ERROR RESPONSE -", error.name);
     error.statusCode = 500;
     next(error);
   }
