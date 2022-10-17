@@ -1,27 +1,25 @@
-const { Question } = require("../models");
+const { Solution } = require("../models");
 const { Owner } = require("../models");
 
 const resCode = require("../libs/error");
 
-exports.addquestion = async (req, res, next) => {
+exports.addanswer = async (req, res, next) => {
   try {
     // 카테고리,제목, 내용
-    const { category, title, text } = req.body;
+    const { comment } = req.body;
 
-    const newQuesiton = await Question.create({
-      category: category,
-      title: title,
-      text: text,
+    const newAnswer = await Solution.create({
+      comment: comment,
       OwnerId: req.decoded.id,
     });
-    const questionData = newQuesiton.dataValues;
+    const answerData = newAnswer.dataValues;
     // 게시글 생성 확인 예외처리
-    if (!questionData || questionData === {}) {
+    if (!answernData || answerData === {}) {
       const error = resCode.BAD_REQEST_WRONG_DATA;
       return res.status(error.code).json(error);
     } else {
       const response = resCode.REQEST_SUCCESS;
-      response.question = questionData;
+      response.answer = answerData;
       return res.status(response.code).json(response);
     }
   } catch (error) {
@@ -31,19 +29,19 @@ exports.addquestion = async (req, res, next) => {
   }
 };
 
-exports.questioninfo = async (req, res, next) => {
+exports.answerinfo = async (req, res, next) => {
   try {
     const OwnerId = req.decoded.id;
-    const myquestions = await Question.findAll({
+    const myanswers = await Answer.findAll({
       where: { OwnerId },
     });
     // 질문 확인
-    if (myquestions === []) {
+    if (myanswers === []) {
       response = resCode.NO_SEARCH_DATA;
     } else {
       response = resCode.REQEST_SUCCESS;
     }
-    response.data = myquestions;
+    response.data = myanswers;
     return res.status(response.code).json(response);
   } catch (error) {
     console.error("ERROR :", error);
@@ -52,28 +50,26 @@ exports.questioninfo = async (req, res, next) => {
   }
 };
 
-exports.updatequestion = async (req, res, next) => {
+exports.updateanswer = async (req, res, next) => {
   try {
     // 수정할 값은 하나만 들어와도 수정되어야 한다.
-    const { category, title, text } = req.body;
-    const { questionId } = req.params;
-    const question = await Question.findOne({
-      where: { id: questionId, OwnerId: req.decoded.id },
+    const { comment } = req.body;
+    const { answerId } = req.params;
+    const answer = await Answer.findOne({
+      where: { id: answerId, OwnerId: req.decoded.id },
     });
 
-    if (!question) {
+    if (!answer) {
       const response = resCode.NO_SEARCH_DATA;
       console.log(response.message);
       return res.status(response.code).json(response);
     } else {
-      await Question.update(
+      await Answer.update(
         {
-          category: category ? category : question.category,
-          title: title ? title : question.title,
-          text: text ? text : question.text,
+          comment: comment ? comment : answer.comment,
         },
         {
-          where: { id: questionId },
+          where: { id: answerId },
         }
       );
       const response = resCode.REQEST_SUCCESS;
@@ -87,15 +83,15 @@ exports.updatequestion = async (req, res, next) => {
 };
 
 // 여기부터 내일 해야함
-exports.removequestion = async (req, res, next) => {
+exports.removeanswer = async (req, res, next) => {
   try {
-    const { questionId } = req.params;
-    const question = await Question.findOne({
-      where: { id: questionId, OwnerId: req.decoded.id },
+    const { answerId } = req.params;
+    const answer = await Answer.findOne({
+      where: { id: answerId, OwnerId: req.decoded.id },
     });
-    console.log(question);
-    if (question.id) {
-      await Question.destroy({ where: { id: questionId } });
+    console.log(answer);
+    if (answer.id) {
+      await Answer.destroy({ where: { id: answerId } });
       const response = resCode.REQEST_SUCCESS;
       return res.status(response.code).json(response);
     } else {

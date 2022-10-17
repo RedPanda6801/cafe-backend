@@ -17,6 +17,6 @@ router.get("/info", verifyToken, questioninfo);
 // 질문 수정
 router.put("/update-question/:questionId", verifyToken, updatequestion);
 // 질문 삭제
-router.get("/remove-question", verifyToken, removequestion);
+router.delete("/remove-question/:questionId", verifyToken, removequestion);
 
 module.exports = router;
