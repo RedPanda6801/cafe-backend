@@ -4,15 +4,36 @@ const resCode = require("../libs/error");
 
 exports.cafeinfo = async (req, res, next) => {
   try {
-    const mycafes = await Cafe.findAll({ where: { id: req.decoded.id } });
+    const mycafes = await Cafe.findAll({ where: { OwnerId: req.decoded.id } });
     // 카페 확인
-    const response = {};
+    let response = {};
     if (mycafes === []) {
       response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
     }
     response.data = mycafes;
+    return res.status(response.code).json(response);
+  } catch (error) {
+    console.error("ERROR RESPONSE -", error.name);
+    error.statusCode = 500;
+    next(error);
+  }
+};
+
+exports.cafeoneinfo = async (req, res, next) => {
+  try {
+    const { cafeId } = req.params;
+    if (!cafeId) {
+      const error = resCode.BAD_REQUEST_LACK_DATA;
+      console.error(error.message);
+      return res.status(error.code).json(error);
+    }
+    const cafe = await Cafe.findOne({
+      where: { id: cafeId, OwnerId: req.decoded.id },
+    });
+    const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
+    response.data = cafe;
     return res.status(response.code).json(response);
   } catch (error) {
     console.error("ERROR RESPONSE -", error.name);

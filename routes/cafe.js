@@ -3,6 +3,7 @@ const {
   addCafe,
   checkCafe,
   cafeinfo,
+  cafeoneinfo,
   updatecafe,
   removecafe,
 } = require("../controllers/cafe");
@@ -16,6 +17,8 @@ router.post("/add-cafe", verifyToken, addCafe);
 router.get("/check-cafe/:cafeName", verifyToken, checkCafe);
 // 내 카페 정보 조회
 router.get("/info", verifyToken, cafeinfo);
+// 내 카페 단일 정보 조회
+router.get("/info-one/:cafeId", verifyToken, cafeoneinfo);
 // 내 카페 정보 수정
 router.put(
   "/update-cafe/:cafeId",

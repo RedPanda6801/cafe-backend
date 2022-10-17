@@ -5,6 +5,7 @@ const path = require("path");
 const dotenv = require("dotenv");
 const session = require("express-session");
 const cors = require("cors");
+const webSocket = require("./socket");
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const stampRouter = require("./routes/stamp");
 const customerRouter = require("./routes/customer");
 const questionRouter = require("./routes/question");
 const solutionRouter = require("./routes/answer");
+const mainRouter = require("./routes/main");
 
 const resCode = require("./libs/error");
 const { sequelize, Solution } = require("./models");
@@ -64,7 +66,7 @@ app.use("/stamp", stampRouter);
 app.use("/customer", customerRouter);
 app.use("/question", questionRouter);
 app.use("/solution", solutionRouter);
-
+app.use("/main", mainRouter);
 // 404 NOT FOUND
 app.use((req, res, next) => {
   if (res.statusCode !== 500) {
@@ -78,7 +80,7 @@ app.use((err, req, res) => {
   console.log(req.query.error);
   console.log("error name - ", err.name || "notFound");
   res.locals.message = err.message;
-  const response = {};
+  let response = {};
   if (err.name === "SequelizeDatabaseError") {
     response.message = "DB ERROR";
   } else if (err.name === "TypeError") {
@@ -88,6 +90,8 @@ app.use((err, req, res) => {
   res.status(err.status || 500).json(response || err);
 });
 
-app.listen(app.get("port"), () => {
+const server = app.listen(app.get("port"), () => {
   console.log(app.get("port"), "번 포트에서 대기중");
 });
+
+webSocket(server, app);
