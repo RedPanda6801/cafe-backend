@@ -74,12 +74,15 @@ app.use((req, res, next) => {
   } else next();
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.log(req.query.error);
+  console.log("error name - ", err.name || "notFound");
   res.locals.message = err.message;
   const response = {};
   if (err.name === "SequelizeDatabaseError") {
     response.message = "DB ERROR";
+  } else if (err.name === "TypeError") {
+    response.massage = "TypeError - dataType problem or DB is not allowed Null";
   }
   res.locals.error = process.env.NODE_ENV !== "production" ? err : {};
   res.status(err.status || 500).json(response || err);

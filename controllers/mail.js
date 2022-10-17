@@ -28,8 +28,10 @@ exports.emailsender = async (req, res, next) => {
       const info = await emailMaker[0].sendMail(emailMaker[1]);
       console.log("메일 정보: ", info);
       const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
-      response.hash = hashCode;
-      response.email = email;
+      response.user = {
+        hash: hashCode,
+        email,
+      };
       return res.status(response.code).json(response);
     }
   } catch (error) {
