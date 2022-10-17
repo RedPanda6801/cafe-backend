@@ -35,6 +35,7 @@ exports.questioninfo = async (req, res, next) => {
     const myquestions = await Question.findAll({
       where: { OwnerId },
     });
+    let response = {};
     // 질문 확인
     if (myquestions === []) {
       response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));

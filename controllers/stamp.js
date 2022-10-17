@@ -8,7 +8,7 @@ exports.checkStamp = async (req, res, next) => {
     const userStamp = await Stamp.findOne({
       where: { custPhone, CafeId: cafeId },
     });
-    const response = {};
+    let response = {};
     // 스탬프를 조회해서 없다면 스탬프 추가
     if (!userStamp) {
       const newStamp = await Stamp.create({
@@ -58,7 +58,7 @@ exports.addstamp = async (req, res, next) => {
           where: { custPhone, CafeId: cafeId },
         }
       );
-      const response = resCode.REQEST_SUCCESS;
+      const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
