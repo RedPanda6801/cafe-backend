@@ -29,8 +29,8 @@ module.exports = class Question extends Sequelize.Model {
         sequelize,
         timestamps: true,
         underscored: false,
-        modelName: "Qustion",
-        tableName: "Qustions",
+        modelName: "Question",
+        tableName: "Questions",
         charset: "utf8",
         collate: "utf8_general_ci",
       }
@@ -39,5 +39,6 @@ module.exports = class Question extends Sequelize.Model {
 
   static associate(db) {
     db.Question.belongsTo(db.Owner);
+    db.Question.hasOne(db.Solution);
   }
 };

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const RateLimit = require("express-rate-limit");
-
+const resCode = require("../libs/error");
 const { Owner, Customer } = require("../models");
 const multer = require("multer");
 const path = require("path");
@@ -26,23 +26,6 @@ exports.checkUserOAuth = async (req, res, next) => {
     }
   } catch (error) {
     res.status(404).json({ message: "Failed" });
-  }
-};
-
-exports.isLoggedIn = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    next();
-  } else {
-    res.status(403).send("로그인 필요");
-  }
-};
-
-exports.isNotLoggedIn = (req, res, next) => {
-  if (!req.isAuthenticated()) {
-    next();
-  } else {
-    const message = encodeURIComponent("로그인한 상태입니다.");
-    res.redirect(`/?error=${message}`);
   }
 };
 
@@ -88,3 +71,21 @@ exports.upload = multer({
     },
   }),
 });
+// 관리자 권한 확인 미들웨어
+exports.checkManager = async (req, res, next) => {
+  try {
+    const user = await Owner.findOne({ where: { id: req.decoded.id } });
+    if (!user || !user.isManager) {
+      const error = resCode.FORBIDDEN_ERROR;
+      console.error("No Manager");
+      return res.status(error.code).json(error);
+    } else {
+      console.log("User is Manager");
+      next();
+    }
+  } catch (error) {
+    console.error("ERROR RESPONSE -", error);
+    error.statusCode = 500;
+    next(error);
+  }
+};

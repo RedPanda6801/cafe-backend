@@ -1,5 +1,4 @@
 const Cafe = require("../models/cafe");
-const Owner = require("../models/owner");
 const { getExpireDate } = require("../libs/util");
 const resCode = require("../libs/error");
 

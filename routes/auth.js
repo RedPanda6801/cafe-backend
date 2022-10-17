@@ -1,5 +1,4 @@
 const express = require("express");
-const { isNotLoggedIn } = require("../middlewares/middleware");
 const {
   signup,
   signin,
@@ -12,7 +11,7 @@ const router = express.Router();
 // 회원가입 기능
 router.post("/join", signup);
 // 로그인 기능
-router.post("/login", isNotLoggedIn, signin);
+router.post("/login", signin);
 // 이메일에 대한 중복 체크
 router.get("/check-email/:email", checkEmail);
 // 아이디에 대한 중복 체크

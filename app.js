@@ -17,9 +17,10 @@ const findRouter = require("./routes/find");
 const stampRouter = require("./routes/stamp");
 const customerRouter = require("./routes/customer");
 const questionRouter = require("./routes/question");
+const solutionRouter = require("./routes/answer");
 
 const resCode = require("./libs/error");
-const { sequelize } = require("./models");
+const { sequelize, Solution } = require("./models");
 
 const app = express();
 app.set("port", process.env.PORT || 8002);
@@ -62,18 +63,19 @@ app.use("/find", findRouter);
 app.use("/stamp", stampRouter);
 app.use("/customer", customerRouter);
 app.use("/question", questionRouter);
+app.use("/solution", solutionRouter);
 
 // 404 NOT FOUND
 app.use((req, res, next) => {
-  console.log(req.query.error);
   if (res.statusCode !== 500) {
     const error = resCode.NOT_FOUND;
+    console.error(`Router Not Found! - ${req.method}${req.url}`);
     return res.status(error.code).json(error);
   } else next();
 });
 
 app.use((err, req, res, next) => {
-  console.log(err);
+  console.log(req.query.error);
   res.locals.message = err.message;
   const response = {};
   if (err.name === "SequelizeDatabaseError") {
