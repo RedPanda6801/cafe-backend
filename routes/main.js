@@ -1,7 +1,8 @@
 const express = require("express");
-const { getMain } = require("../controllers/main");
+const { getTablet, getPhone } = require("../controllers/main");
 const router = express.Router();
 
-router.get("/", getMain);
+router.get("/tablet", getTablet);
 
+router.get("/phone", getPhone);
 module.exports = router;
