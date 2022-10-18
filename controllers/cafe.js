@@ -78,12 +78,11 @@ exports.updatecafe = async (req, res, next) => {
     const { cafeName, location, businessNum } = req.body;
     const { cafeId } = req.params;
     const formData = req.files;
-
     let icon = "";
     let img = "";
     if (formData) {
-      icon = formData[1] && formData[1].filename;
-      img = formData[0] && formData[0].filename;
+      icon = formData["icon"] ? formData["icon"].filename : null;
+      img = formData["img"] ? formData["img"].filename : null;
     } else {
       icon = null;
       img = null;
