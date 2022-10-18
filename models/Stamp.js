@@ -21,6 +21,10 @@ module.exports = class Stamp extends Sequelize.Model {
           type: Sequelize.STRING(100),
           allowNull: true,
         },
+        custPhone: {
+          type: Sequelize.STRING(13),
+          allowNull: true,
+        },
       },
       {
         sequelize,

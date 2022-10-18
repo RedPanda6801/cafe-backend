@@ -25,7 +25,7 @@ exports.checkStamp = async (req, res, next) => {
       return res.status(response.code).json(response);
     } else {
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
-      response.stamp = this.useStamp;
+      response.stamp = userStamp;
       response.message = "Search Success";
       return res.status(response.code).json(response);
     }
@@ -80,7 +80,7 @@ exports.useStamp = async (req, res, next) => {
       console.log("NO DATA RESPONSE -", response.message);
       return res.status(response.code).json(response);
     } else {
-      if (stamp.leftStamp < 10) {
+      if (stamp.leftStamp < 10 || stamp.leftStamp < useCount * 10) {
         const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_LACK_DATA));
         error.message = "Not Enough Stamp";
         return res.status(error.status).json(error);

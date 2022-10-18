@@ -7,16 +7,14 @@
     <title>Document</title>
   </head>
   <body>
-    <form method="POST" action="/chat">
-      <input type="text" placeholder="입력하세여" />
-      <button type="submit">보내기</button>
-    </form>
+    <input id="inputText" type="text" placeholder="입력하세여" />
+    <button onclick="submit()">보내기</button>
   </body>
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const socket = io.connect(
-    "http://localhost:8002/chat",
+    "http://localhost:8002/tablet",
     {
       path: "/socket.io",
     }
@@ -26,6 +24,21 @@
     //   },
     // }
   );
+  const submit = () => {
+    const data = document.getElementById("inputText");
+    console.log(data.value);
+    const user = {
+      custPhone: data.value,
+      cafeId: 1,
+    };
+    socket.emit("search", user);
+  };
+  socket.on("success", (data) => {
+    console.log(data);
+  });
+  socket.on("error", (error) => {
+    console.log(error);
+  });
   socket.on("news", (data) => {
     console.log(data);
     socket.emit("reply", "010-3305-8213");

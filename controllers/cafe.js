@@ -79,8 +79,15 @@ exports.updatecafe = async (req, res, next) => {
     const { cafeId } = req.params;
     const formData = req.files;
 
-    const icon = formData[1] && formData[1].filename;
-    const img = formData[0] && formData[0].filename;
+    let icon = "";
+    let img = "";
+    if (formData) {
+      icon = formData[1] && formData[1].filename;
+      img = formData[0] && formData[0].filename;
+    } else {
+      icon = null;
+      img = null;
+    }
 
     const cafe = await Cafe.findOne({
       where: { id: cafeId, OwnerId: req.decoded.id },
