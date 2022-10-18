@@ -23,7 +23,10 @@ router.get("/info-one/:cafeId", verifyToken, cafeoneinfo);
 router.put(
   "/update-cafe/:cafeId",
   verifyToken,
-  upload.array("image"),
+  upload.fields([
+    { name: "icon", maxCount: 1 },
+    { name: "img", maxCount: 1 },
+  ]),
   updatecafe
 );
 // 내 카페 삭제
