@@ -53,7 +53,7 @@
 ```
 
 # ERD
-![image](https://user-images.githubusercontent.com/110373172/196578971-83ce8ace-bf8a-42b8-a8f4-d5a665dc3dc8.png)
+![image](https://user-images.githubusercontent.com/110373172/196595614-cfeb1786-1769-4891-b045-956497c5d952.png)
 
 # 순서도
 ![image](https://user-images.githubusercontent.com/110373172/196579182-d46075cb-edb5-4e1b-bd98-3bfb669a9c38.png)
