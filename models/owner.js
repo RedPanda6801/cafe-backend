@@ -10,7 +10,7 @@ module.exports = class Owner extends Sequelize.Model {
           allowNull: false,
         },
         provider: {
-          type: Sequelize.STRING(50),
+          type: Sequelize.STRING(10),
           allowNull: false,
         },
         userId: {
@@ -40,6 +40,7 @@ module.exports = class Owner extends Sequelize.Model {
         underscored: false,
         modelName: "Owner",
         tableName: "Owners",
+        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }

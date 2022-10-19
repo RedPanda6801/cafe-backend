@@ -15,7 +15,7 @@ exports.cafeinfo = async (req, res, next) => {
     response.data = mycafes;
     return res.status(response.code).json(response);
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -26,7 +26,7 @@ exports.cafeoneinfo = async (req, res, next) => {
     const { cafeId } = req.params;
     if (!cafeId) {
       const error = resCode.BAD_REQUEST_LACK_DATA;
-      console.error(error.message);
+      console.error(error);
       return res.status(error.code).json(error);
     }
     const cafe = await Cafe.findOne({
@@ -36,7 +36,7 @@ exports.cafeoneinfo = async (req, res, next) => {
     response.data = cafe;
     return res.status(response.code).json(response);
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -66,7 +66,7 @@ exports.addCafe = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -112,7 +112,7 @@ exports.updatecafe = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -143,24 +143,24 @@ exports.removecafe = async (req, res, next) => {
   }
 };
 
-// 카페 중복 확인 API
-exports.checkCafe = async (req, res, next) => {
-  try {
-    // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
-    const { cafeName } = req.params;
-    const cafe = await Cafe.findOne({
-      where: { cafeName, OwnerId: req.decoded.id },
-    });
-    if (cafe) {
-      const error = resCode.BAD_REQUEST_EXIESTED;
-      return res.status(error.code).json(error);
-    } else {
-      const response = resCode.NO_SEARCH_DATA;
-      return res.status(response.code).json(response);
-    }
-  } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
-    error.statusCode = 500;
-    next(error);
-  }
-};
+// // 카페 중복 확인 API
+// exports.checkCafe = async (req, res, next) => {
+//   try {
+//     // 사업자 번호, 카페 이름, 카페 위치, 구독 월 수
+//     const { cafeName } = req.params;
+//     const cafe = await Cafe.findOne({
+//       where: { cafeName, OwnerId: req.decoded.id },
+//     });
+//     if (cafe) {
+//       const error = resCode.BAD_REQUEST_EXIESTED;
+//       return res.status(error.code).json(error);
+//     } else {
+//       const response = resCode.NO_SEARCH_DATA;
+//       return res.status(response.code).json(response);
+//     }
+//   } catch (error) {
+//     console.error("ERROR RESPONSE -", error.name);
+//     error.statusCode = 500;
+//     next(error);
+//   }
+// };

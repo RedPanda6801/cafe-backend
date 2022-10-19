@@ -36,7 +36,6 @@ module.exports = class Cafe extends Sequelize.Model {
         underscored: false,
         modelName: "Cafe",
         tableName: "Cafes",
-        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }

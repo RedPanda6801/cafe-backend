@@ -16,9 +16,8 @@ const cafeRouter = require("./routes/cafe");
 const profileRouter = require("./routes/profile");
 const findRouter = require("./routes/find");
 const stampRouter = require("./routes/stamp");
-const customerRouter = require("./routes/customer");
 const questionRouter = require("./routes/question");
-const solutionRouter = require("./routes/answer");
+const solutionRouter = require("./routes/solution");
 const mainRouter = require("./routes/main");
 
 const resCode = require("./libs/error");
@@ -63,7 +62,6 @@ app.use("/cafe", cafeRouter);
 app.use("/profile", profileRouter);
 app.use("/find", findRouter);
 app.use("/stamp", stampRouter);
-app.use("/customer", customerRouter);
 app.use("/question", questionRouter);
 app.use("/solution", solutionRouter);
 app.use("/main", mainRouter);

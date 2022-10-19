@@ -1,7 +1,7 @@
-const { Stamp } = require("../models");
+const { Stamp, Cafe } = require("../models");
 const resCode = require("../libs/error");
 
-exports.checkStamp = async (req, res, next) => {
+exports.searchStamp = async (req, res, next) => {
   try {
     const { custPhone, cafeId } = req.params;
 
@@ -20,17 +20,21 @@ exports.checkStamp = async (req, res, next) => {
         memo: "",
       });
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
-      response.stamp = newStamp;
-      response.message = "Create Success";
+      response.data = {
+        stamp: newStamp,
+        message: "Create Success",
+      };
       return res.status(response.code).json(response);
     } else {
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
-      response.stamp = userStamp;
-      response.message = "Search Success";
+      response.data = {
+        stamp: userStamp,
+        message: "Search Success",
+      };
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -45,7 +49,7 @@ exports.addstamp = async (req, res, next) => {
     const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
     if (!stamp) {
       const response = resCode.NO_SEARCH_DATA;
-      console.log("NO DATA RESPONSE -", response.message);
+      console.log("NO DATA RESPONSE -", response);
       return res.status(response.code).json(response);
     } else {
       Stamp.update(
@@ -62,7 +66,7 @@ exports.addstamp = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -77,13 +81,13 @@ exports.useStamp = async (req, res, next) => {
     const stamp = await Stamp.findOne({ where: { custPhone, CafeId: cafeId } });
     if (!stamp) {
       const response = resCode.NO_SEARCH_DATA;
-      console.log("NO DATA RESPONSE -", response.message);
+      console.log("NO DATA RESPONSE -", response);
       return res.status(response.code).json(response);
     } else {
       if (stamp.leftStamp < 10 || stamp.leftStamp < useCount * 10) {
         const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_LACK_DATA));
         error.message = "Not Enough Stamp";
-        return res.status(error.status).json(error);
+        return res.status(error.code).json(error);
       } else {
         Stamp.update(
           {
@@ -98,7 +102,31 @@ exports.useStamp = async (req, res, next) => {
       }
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
+    error.statusCode = 500;
+    next(error);
+  }
+};
+
+exports.updatememo = async (req, res, next) => {
+  try {
+    const { cafeId, custPhone } = req.params;
+    const { memo } = req.body;
+
+    const cafe = await Cafe.findOne({
+      where: { id: cafeId, OwnerId: req.decoded.id },
+    });
+    if (!cafe) {
+      const error = resCode.BAD_REQUEST_WRONG_DATA;
+      console.error("No Cafe in DB");
+      return res.status(error.code).json(error);
+    } else {
+      await Stamp.update({ memo }, { where: { CafeId: cafeId, custPhone } });
+      const response = resCode.REQUEST_SUCCESS;
+      return res.status(response.code).json(response);
+    }
+  } catch (error) {
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
