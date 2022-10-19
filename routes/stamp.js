@@ -5,9 +5,12 @@ const {
   searchStamp,
   useStamp,
   updatememo,
+  searchallstamp,
 } = require("../controllers/stamp");
 
 const router = express.Router();
+// 고객 전체 조회
+router.get("/search-all/:cafeId", verifyToken, searchallstamp);
 
 // 쿠폰 조회
 router.get(
