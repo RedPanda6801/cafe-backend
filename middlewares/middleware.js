@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const RateLimit = require("express-rate-limit");
 const resCode = require("../libs/error");
-const { Owner, Customer } = require("../models");
+const { Owner } = require("../models");
 const multer = require("multer");
 const path = require("path");
 
@@ -74,8 +74,7 @@ exports.upload = multer({
 // 관리자 권한 확인 미들웨어
 exports.checkManager = async (req, res, next) => {
   try {
-    const user = await Owner.findOne({ where: { id: req.decoded.id } });
-    if (!user || !user.isManager) {
+    if (!req.decoded.isManager) {
       const error = resCode.FORBIDDEN_ERROR;
       console.error("No Manager");
       return res.status(error.code).json(error);

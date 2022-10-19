@@ -14,7 +14,7 @@ const router = express.Router();
 // 카페 추가 API
 router.post("/add-cafe", verifyToken, addCafe);
 // 카페 이름 중복 체크 API
-router.get("/check-cafe/:cafeName", verifyToken, checkCafe);
+// router.get("/check-cafe/:cafeName", verifyToken, checkCafe);
 // 내 카페 정보 조회
 router.get("/info", verifyToken, cafeinfo);
 // 내 카페 단일 정보 조회

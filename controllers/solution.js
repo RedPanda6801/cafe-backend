@@ -2,7 +2,7 @@ const { Owner, Solution, Question } = require("../models");
 
 const resCode = require("../libs/error");
 
-exports.addanswer = async (req, res, next) => {
+exports.addsolution = async (req, res, next) => {
   try {
     // 카테고리,제목, 내용
     const { comment } = req.body;
@@ -36,7 +36,7 @@ exports.addanswer = async (req, res, next) => {
   }
 };
 
-exports.answerinfo = async (req, res, next) => {
+exports.infosolution = async (req, res, next) => {
   try {
     const myanswers = await Solution.findAll({
       where: { OwnerId: req.decoded.id },
@@ -57,7 +57,7 @@ exports.answerinfo = async (req, res, next) => {
   }
 };
 
-exports.updateanswer = async (req, res, next) => {
+exports.updatesolution = async (req, res, next) => {
   try {
     // 수정할 값은 하나만 들어와도 수정되어야 한다.
     const { comment } = req.body;
@@ -87,7 +87,7 @@ exports.updateanswer = async (req, res, next) => {
     next(error);
   }
 };
-exports.removeanswer = async (req, res, next) => {
+exports.removesolution = async (req, res, next) => {
   try {
     const { solutionId } = req.params;
     const answer = await Solution.findOne({

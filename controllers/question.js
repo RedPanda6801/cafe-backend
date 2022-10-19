@@ -1,5 +1,4 @@
-const { Question } = require("../models");
-const { Owner } = require("../models");
+const { Question, Solution } = require("../models");
 
 const resCode = require("../libs/error");
 
@@ -9,7 +8,7 @@ exports.addquestion = async (req, res, next) => {
     const { category, title, text } = req.body;
     if (!category || !title || !text) {
       const error = resCode.BAD_REQUEST_LACK_DATA;
-      console.error(error.message);
+      console.error(error);
       return res.status(error.code).json(error);
     } else {
       const questionData = await Question.create({
@@ -23,7 +22,7 @@ exports.addquestion = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -45,7 +44,33 @@ exports.questioninfo = async (req, res, next) => {
     response.data = myquestions;
     return res.status(response.code).json(response);
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
+    error.statusCode = 500;
+    next(error);
+  }
+};
+
+exports.questioninfoone = async (req, res, next) => {
+  try {
+    const { questionId } = req.params;
+    const question = await Question.findOne({ where: { id: questionId } });
+    if (!question) {
+      const error = resCode.BAD_REQUEST_WRONG_DATA;
+      console.error("ERROR RESPONSE - Can't find Question in DB");
+      return res.status(error.code).json(error);
+    } else {
+      const solution = await Solution.findOne({
+        where: { QuestionId: questionId },
+      });
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
+      response.data = {
+        question,
+        solution,
+      };
+      return res.status(response.code).json(response);
+    }
+  } catch (error) {
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -62,7 +87,7 @@ exports.updatequestion = async (req, res, next) => {
 
     if (!question) {
       const response = resCode.NO_SEARCH_DATA;
-      console.log(response.message);
+      console.log(response);
       return res.status(response.code).json(response);
     } else {
       await Question.update(
@@ -79,7 +104,7 @@ exports.updatequestion = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -94,7 +119,7 @@ exports.removequestion = async (req, res, next) => {
       }))
     ) {
       const error = resCode.BAD_REQUEST_WRONG_DATA;
-      console.error(error.message);
+      console.error(error);
       return res.status(error.code).json(error);
     } else {
       await Question.destroy({ where: { id: questionId } });
@@ -102,7 +127,7 @@ exports.removequestion = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }

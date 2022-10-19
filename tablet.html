@@ -13,17 +13,13 @@
 </html>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const socket = io.connect(
-    "http://localhost:8002/tablet",
-    {
-      path: "/socket.io",
-    }
-    // {
-    //   extraHeaders: {
-    //     Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaXNNYW5hZ2VyIjpmYWxzZSwiaWF0IjoxNjY2MDAzMzQzLCJleHAiOjE2NjYwODk3NDMsImlzcyI6IkNhZmUgTWFuYWdlcnMifQ.iDfNHE5qwjyyUcSLb8NAKtGPVveZsOlH09Y7cw5M--8`,
-    //   },
-    // }
-  );
+  const socket = io.connect("http://localhost:8002/tablet", {
+    path: "/socket.io",
+    auth: {
+      token:
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaXNNYW5hZ2VyIjpmYWxzZSwiaWF0IjoxNjY2MTY0ODg1LCJleHAiOjE2NjYyNTEyODUsImlzcyI6IkNhZmUgTWFuYWdlcnMifQ.sw_GaQwmTqKpOBK_TB37FDTG0tsL3VHRramJWvEeFo0",
+    },
+  });
   const submit = () => {
     const data = document.getElementById("inputText");
     console.log(data.value);

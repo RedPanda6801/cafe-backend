@@ -1,6 +1,7 @@
 const { makeEmail, getTempPassword } = require("../libs/util");
 const { Owner } = require("../models");
 const resCode = require("../libs/error");
+const bcrypt = require("bcrypt");
 
 exports.sendUserId = async (req, res, next) => {
   try {
@@ -23,6 +24,7 @@ exports.sendUserId = async (req, res, next) => {
     } else {
       // 이메일이 없다면
       const error = resCode.BAD_REQUEST_NO_USER;
+      console.error("ERROR :", error);
       return res.status(error.code).json(error);
     }
   } catch (error) {
@@ -45,13 +47,21 @@ exports.findPassword = async (req, res, next) => {
     console.log(owner);
     if (owner) {
       console.log(owner.userId, owner.name);
-
+      const tempPassword = getTempPassword();
+      const encodingPassword = await bcrypt.hash(tempPassword, 12);
+      const update = await Owner.update(
+        {
+          password: encodingPassword,
+        },
+        { where: { email, name, userId } }
+      );
+      console.log(await bcrypt.compare(tempPassword, encodingPassword));
       const html = `<h1>비밀번호 변경 메일입니다.</h1>
-      <h3>임시 비밀번호는 ${getTempPassword} 입니다.</h3>
+      <h3>임시 비밀번호는 ${tempPassword} 입니다.</h3>
       <h3>로그인 후에 반드시 비밀번호를 변경해주세요.</h3>  `;
       const subject = "비밀번호 변경 메일 - 감자 카페";
       const emailMaker = makeEmail(html, subject, owner.email);
-      const info = emailMaker[0].sendMail(emailMaker[1]);
+      const info = await emailMaker[0].sendMail(emailMaker[1]);
       console.log("Mail Info : ", info);
       const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);

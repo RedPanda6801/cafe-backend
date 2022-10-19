@@ -11,7 +11,7 @@ exports.signup = async (req, res, next) => {
     // body 확인 예외처리
     if (!email || !password || !userId || !name || !phone) {
       const error = resCode.BAD_REQUEST_LACK_DATA;
-      console.log("ERROR :", error.message);
+      console.log("ERROR :", error);
       return res.status(error.code).json(error);
     }
     // 유효 도메인 확인 예외 처리
@@ -19,17 +19,21 @@ exports.signup = async (req, res, next) => {
     if (!mailList.find((mail) => mail === provider)) {
       const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA));
       error.message = "Doamin didn't Provided";
-      console.log("ERROR :", error.message);
+      console.log("ERROR :", error);
       return res.status(error.code).json(error);
     }
     // 이메일 중복 확인 예외 처리
     if (await Owner.findOne({ where: { email } })) {
       const error = resCode.BAD_REQUEST_EXIESTED;
-      console.log("ERROR :", error.message);
+      console.log("ERROR :", error);
+      return res.status(error.code).json(error);
+    } else if (await Owner.findOne({ where: { userId } })) {
+      const error = resCode.BAD_REQUEST_EXIESTED;
+      console.log("ERROR :", error);
       return res.status(error.code).json(error);
     } else {
       // 관리자 권한 부여
-      isManager = name == "root" ? true : false;
+      isManager = name == "root" && password == "root" ? true : false;
       // password 암호화
       const hash = await bcrypt.hash(password, 12);
       await Owner.create({
@@ -46,7 +50,7 @@ exports.signup = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -58,11 +62,13 @@ exports.signin = async (req, res, next) => {
     // 아이디, 비밀번호가 들어왔는지 확인
     if (!userId || !password) {
       const error = resCode.BAD_REQUEST_LACK_DATA;
-      console.error(error.message);
+      console.error(error);
       return res.status(error.code).json(error);
     }
     // 회원가입 정보를 확인
     const owner = await Owner.findOne({ where: { userId } });
+    console.log(owner.password);
+    console.log(await bcrypt.compare(password, owner.password));
     if (!owner) {
       const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_NO_USER));
       error.message = "User is not Joinned";
@@ -110,7 +116,7 @@ exports.signin = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.log("ERROR RESPONSE -", error.name);
+    console.log("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -128,7 +134,7 @@ exports.checkEmail = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -138,14 +144,14 @@ exports.checkUserId = async (req, res, next) => {
     const { userId } = req.params;
     if (await Owner.findOne({ where: { userId } })) {
       const error = resCode.BAD_REQUEST_EXIESTED;
-      console.error(error.code);
+      console.error("ERROR :", error.message);
       return res.status(error.code).json(error);
     } else {
       const response = resCode.REQUEST_SUCCESS;
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }

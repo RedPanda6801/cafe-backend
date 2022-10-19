@@ -12,7 +12,8 @@ module.exports = class Question extends Sequelize.Model {
             "결제 문의",
             "결제 수단",
             "프로모션 / 이벤트",
-            "웹 이용 문의"
+            "웹 이용 문의",
+            "기타"
           ),
           allowNull: false,
         },
@@ -31,6 +32,7 @@ module.exports = class Question extends Sequelize.Model {
         underscored: false,
         modelName: "Question",
         tableName: "Questions",
+        paranoid: true,
         charset: "utf8",
         collate: "utf8_general_ci",
       }
