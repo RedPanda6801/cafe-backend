@@ -1,6 +1,26 @@
 const { Stamp, Cafe } = require("../models");
 const resCode = require("../libs/error");
 
+exports.searchallstamp = async (req, res, next) => {
+  try {
+    const { cafeId } = req.params;
+
+    const custStamp = await Stamp.findAll({ where: { CafeId: cafeId } });
+    if (custStamp.length) {
+      const response = resCode.REQUEST_SUCCESS;
+      response.customers = custStamp;
+      return res.status(response.code).json(response);
+    } else {
+      console.log("No Customer in your Cafe");
+      const error = resCode.BAD_REQUEST_NO_USER;
+      return res.status(error.code).json(error);
+    }
+  } catch (error) {
+    console.error("ERROR :", error);
+    error.statusCode = 500;
+    next(error);
+  }
+};
 exports.searchStamp = async (req, res, next) => {
   try {
     const { custPhone, cafeId } = req.params;
