@@ -22,16 +22,28 @@ exports.Ownerinfo = async (req, res, next) => {
 };
 exports.updateOwner = async (req, res, next) => {
   try {
-    const { password, ownerPhone } = req.body;
-    let passwordEncoding = "";
+    const { newPassword, currentPassword, ownerPhone } = req.body;
+
+    let passwordEncoding = null;
     // password가 있으면 암호화 시켜야함
-    if (password) passwordEncoding = await bcrypt.hash(password, 12);
     const owner = await Owner.findOne({ where: { id: req.decoded.id } });
+    // owner가 없을 때의 예외처리
     if (!owner) {
       const error = resCode.UNAUTHORIZED_ERROR;
       console.error("ERROR RESPONSE -", error);
       return res.status(error.code).json(error);
     } else {
+      // 현재 패스워드와 새로운 패스워드가 모두 입력 되었을때 비밀번호 변경에 접근이 가능
+      if (newPassword && currentPassword) {
+        // 현재 비밀번호와 DB의 비밀번호를 크립토로 비교
+        if (!(await bcrypt.compare(currentPassword, owner.password))) {
+          const error = resCode.BAD_REQUEST_WRONG_DATA;
+          console.log("ERROR RESPONSE -", error);
+          return res.status(error.code).json(error);
+        }
+        // 비교 성공 시에 비밀번호를 암호화하여 넣음
+        passwordEncoding = await bcrypt.hash(newPassword, 12);
+      }
       if (
         !(await Owner.update(
           {
@@ -67,7 +79,7 @@ exports.withdrawOwner = async (req, res, next) => {
       console.error("ERROR RESPONSE -", error);
       return res.status(error.status).json(error);
     } else {
-      if (!(await bcrypt.compare(password, owner.password))) {
+      if (password !== owner.password) {
         const error = JSON.parse(
           JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
         );
