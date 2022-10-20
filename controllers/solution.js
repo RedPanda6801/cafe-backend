@@ -20,6 +20,20 @@ exports.addsolution = async (req, res, next) => {
           OwnerId: user.id,
           QuestionId: questionId,
         });
+        const isSolution = await Question.update(
+          {
+            SolutionId: answerData.dataValues.id,
+          },
+          { where: { id: questionId } }
+        );
+        if (!isSolution[0]) {
+          const error = JSON.parse(
+            JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
+          );
+          error.message = "Update Failed";
+          console.error(error.message);
+          return res.status(error.code).json(error);
+        }
         const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
         response.answer = answerData;
         return res.status(response.code).json(response);

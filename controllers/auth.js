@@ -33,7 +33,7 @@ exports.signup = async (req, res, next) => {
       return res.status(error.code).json(error);
     } else {
       // 관리자 권한 부여
-      isManager = name == "root" && password == "root" ? true : false;
+      isManager = name == "root" && password == "1234" ? true : false;
       // password 암호화
       const hash = await bcrypt.hash(password, 12);
       await Owner.create({

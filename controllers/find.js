@@ -5,8 +5,8 @@ const bcrypt = require("bcrypt");
 
 exports.sendUserId = async (req, res, next) => {
   try {
-    const { email } = req.params;
-    const owner = await Owner.findOne({ where: { email } });
+    const { email, name } = req.params;
+    const owner = await Owner.findOne({ where: { email, name } });
     if (owner) {
       // 입력한 이메일이 있다면
       const userId = owner.userId;

@@ -31,9 +31,14 @@ exports.addquestion = async (req, res, next) => {
 exports.questioninfo = async (req, res, next) => {
   try {
     const OwnerId = req.decoded.id;
-    const myquestions = await Question.findAll({
-      where: { OwnerId },
-    });
+    let myquestions = null;
+    if (req.decoded.isManager) {
+      myquestions = await Question.findAll({});
+    } else {
+      myquestions = await Question.findAll({
+        where: { OwnerId },
+      });
+    }
     let response = {};
     // 질문 확인
     if (myquestions === []) {
@@ -66,6 +71,7 @@ exports.questioninfoone = async (req, res, next) => {
       response.data = {
         question,
         solution,
+        isManager: req.decoded.isManager,
       };
       return res.status(response.code).json(response);
     }

@@ -81,8 +81,8 @@ exports.updatecafe = async (req, res, next) => {
     let icon = "";
     let img = "";
     if (formData) {
-      icon = formData["icon"] ? formData["icon"].filename : null;
-      img = formData["img"] ? formData["img"].filename : null;
+      icon = formData["icon"] ? formData["icon"][0].filename : null;
+      img = formData["img"] ? formData["img"][0].filename : null;
     } else {
       icon = null;
       img = null;
@@ -105,7 +105,7 @@ exports.updatecafe = async (req, res, next) => {
           img: img ? img : cafe.img,
         },
         {
-          where: { id: req.decoded.id },
+          where: { id: cafeId },
         }
       );
       const response = resCode.REQUEST_SUCCESS;

@@ -69,7 +69,7 @@ module.exports = (server, app) => {
           );
           const response = resCode.REQUEST_SUCCESS;
           console.log(response);
-          tablet.emit("success", response);
+          tablet.emit("success", "stack");
         }
       } catch (error) {
         console.log(error);
@@ -105,7 +105,7 @@ module.exports = (server, app) => {
               }
             );
             const response = resCode.REQUEST_SUCCESS;
-            tablet.emit("success", response);
+            tablet.emit("success", "use");
           }
         }
       } catch (error) {
