@@ -43,6 +43,7 @@ exports.verifyToken = (req, res, next) => {
       console.log(errResponse);
       return res.status(errResponse.code).json(errResponse);
     }
+    console.log(error);
     const errResponse = JSON.parse(JSON.stringify(resCode.UNAUTHORIZED_ERROR));
     console.log(errResponse);
     return res.status(errResponse.code).json(errResponse);
