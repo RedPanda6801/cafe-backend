@@ -13,6 +13,6 @@ router.get("/info", verifyToken, Ownerinfo);
 //점주 정보 수정
 router.put("/update-profile", verifyToken, updateOwner);
 //점주 정보 삭제 (암호화 코드는 body로 보내야한다!!)
-router.delete("/remove-profile/:email/:password", verifyToken, withdrawOwner);
+router.delete("/remove-profile/:email", verifyToken, withdrawOwner);
 
 module.exports = router;
