@@ -71,7 +71,9 @@ exports.updateOwner = async (req, res, next) => {
 };
 exports.withdrawOwner = async (req, res, next) => {
   try {
-    const { email, password } = req.params;
+    const { email } = req.params;
+    // 암호화된 코드는 url에 담으면 안됨
+    const { password } = req.body;
 
     const owner = await Owner.findOne({ where: { email, id: req.decoded.id } });
     if (!owner) {
