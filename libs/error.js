@@ -24,13 +24,15 @@ const resCode = {
     message: "Request Failed",
   },
   FORBIDDEN_ERROR: {
-    code: 401,
+    code: 403,
+    message: "Forbidden Error",
   },
   TOKEN_EXPIRED_ERROR: {
     code: 419,
+    message: "Token is Expired",
   },
   UNAUTHORIZED_ERROR: {
-    code: 403,
+    code: 401,
     message: "Unauthorized User",
   },
   TYPE_ERROR: {

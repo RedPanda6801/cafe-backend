@@ -4,10 +4,10 @@ const resCode = require("../libs/error");
 exports.searchallstamp = async (req, res, next) => {
   try {
     const { cafeId } = req.params;
-
+    console.log(req.decoded.id);
     const custStamp = await Stamp.findAll({ where: { CafeId: cafeId } });
     if (custStamp.length) {
-      const response = resCode.REQUEST_SUCCESS;
+      const response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));
       response.customers = custStamp;
       return res.status(response.code).json(response);
     } else {

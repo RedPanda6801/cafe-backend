@@ -105,6 +105,7 @@ module.exports = (server, app) => {
               }
             );
             const response = resCode.REQUEST_SUCCESS;
+            console.log(response);
             tablet.emit("success", "use");
           }
         }

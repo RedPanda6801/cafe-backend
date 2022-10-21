@@ -33,7 +33,7 @@ exports.signup = async (req, res, next) => {
       return res.status(error.code).json(error);
     } else {
       // 관리자 권한 부여
-      isManager = name == "root" && password == "1234" ? true : false;
+      isManager = name == "root" && password == "root1234" ? true : false;
       // password 암호화
       const hash = await bcrypt.hash(password, 12);
       await Owner.create({
@@ -67,8 +67,6 @@ exports.signin = async (req, res, next) => {
     }
     // 회원가입 정보를 확인
     const owner = await Owner.findOne({ where: { userId } });
-    console.log(owner.password);
-    console.log(await bcrypt.compare(password, owner.password));
     if (!owner) {
       const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_NO_USER));
       error.message = "User is not Joinned";
@@ -79,7 +77,7 @@ exports.signin = async (req, res, next) => {
       return res.status(error.code).json(error);
     } else {
       // 토큰을 가지고 있는 사용자인지 확인
-      if (req.session.jwt) {
+      if (req.headers.authorization) {
         const error = JSON.parse(
           JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
         );
@@ -121,13 +119,13 @@ exports.signin = async (req, res, next) => {
     next(error);
   }
 };
-
+// 이메일 중복 확인 API
 exports.checkEmail = async (req, res, next) => {
   try {
     const { email } = req.params;
     if (await Owner.findOne({ where: { email } })) {
       const error = resCode.BAD_REQUEST_EXIESTED;
-      console.error("ERROR :", error.message);
+      console.error("ERROR :", error);
       return res.status(error.code).json(error);
     } else {
       const response = resCode.REQUEST_SUCCESS;
@@ -139,12 +137,14 @@ exports.checkEmail = async (req, res, next) => {
     next(error);
   }
 };
+
+// 유저의 아이디 중복 확인 API
 exports.checkUserId = async (req, res, next) => {
   try {
     const { userId } = req.params;
     if (await Owner.findOne({ where: { userId } })) {
       const error = resCode.BAD_REQUEST_EXIESTED;
-      console.error("ERROR :", error.message);
+      console.error("ERROR :", error);
       return res.status(error.code).json(error);
     } else {
       const response = resCode.REQUEST_SUCCESS;
