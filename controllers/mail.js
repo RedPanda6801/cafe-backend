@@ -18,7 +18,7 @@ exports.emailsender = async (req, res, next) => {
       <h2>${code}</h2>
       <h3>코드를 입력해주세요!</h3>
       `;
-      const subject = "이메일 인증 요청 - 감자네 커피";
+      const subject = "이메일 인증 요청 - 마이스탬프";
       // email과 code가 유효하면 메일을 보냄
       const emailMaker = makeEmail(html, subject, email);
 
@@ -51,8 +51,9 @@ exports.emailauth = async (req, res, next) => {
       response.email = email;
       return res.status(response.code).json(response);
     } else {
-      const error = resCode.FORBIDDEN_ERROR;
-      return res.status(response.code).json(error);
+      const error = JSON.parse(JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA));
+      error.message = "Code Decode Failed";
+      return res.status(error.code).json(error);
     }
   } catch (error) {
     console.error("ERROR :", error);

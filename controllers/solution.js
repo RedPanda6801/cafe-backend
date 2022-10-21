@@ -8,7 +8,10 @@ exports.addsolution = async (req, res, next) => {
     const { comment } = req.body;
     const { questionId } = req.params;
     const user = await Owner.findOne({ where: { id: req.decoded.id } });
-    if (user) {
+    if (!user) {
+      const error = resCode.BAD_REQUEST_NO_USER;
+      return res.status(error.code).json(error);
+    } else {
       if (user.isManager) {
         if (!(await Question.findOne({ where: { id: questionId } }))) {
           const error = resCode.BAD_REQUEST_WRONG_DATA;
@@ -81,7 +84,7 @@ exports.updatesolution = async (req, res, next) => {
     });
     if (!answer) {
       const error = resCode.BAD_REQUEST_WRONG_DATA;
-      console.log(error.message);
+      console.error("ERROR RESPONSE -", error);
       return res.status(error.code).json(error);
     } else {
       await Solution.update(
@@ -96,7 +99,7 @@ exports.updatesolution = async (req, res, next) => {
       return res.status(response.code).json(response);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }
@@ -117,7 +120,7 @@ exports.removesolution = async (req, res, next) => {
       return res.status(error.code).json(error);
     }
   } catch (error) {
-    console.error("ERROR RESPONSE -", error.name);
+    console.error("ERROR RESPONSE -", error);
     error.statusCode = 500;
     next(error);
   }

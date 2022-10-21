@@ -15,17 +15,19 @@ exports.checkUserOAuth = async (req, res, next) => {
         req.user = user;
         next();
       } else {
+        const error = resCode.FORBIDDEN_ERROR;
         console.log("Forbidden User");
-        res.status(403).json({
-          message: "Forbidden Error",
-        });
+        return res.status(error.code).json(error);
       }
     } else {
+      const error = resCode.BAD_REQUEST_NO_USER;
       console.log("No User");
-      res.status(400).json({ message: "No User" });
+      return res.status(error.code).json(error);
     }
   } catch (error) {
-    res.status(404).json({ message: "Failed" });
+    console.error("ERROR RESPONSE -", error);
+    error.statusCode = 500;
+    next(error);
   }
 };
 
@@ -37,15 +39,13 @@ exports.verifyToken = (req, res, next) => {
   } catch (error) {
     if (error.name === "TokenExpiredError") {
       // 유효기간 초과
-      return res.json({
-        code: 419,
-        message: "토큰이 만료되었습니다",
-      });
+      const errResponse = resCode.TOKEN_EXPIRED_ERROR;
+      console.log(errResponse);
+      return res.status(errResponse.code).json(errResponse);
     }
-    return res.json({
-      code: 401,
-      message: "유효하지 않은 토큰입니다",
-    });
+    const errResponse = JSON.parse(JSON.stringify(resCode.UNAUTHORIZED_ERROR));
+    console.log(errResponse);
+    return res.status(errResponse.code).json(errResponse);
   }
 };
 

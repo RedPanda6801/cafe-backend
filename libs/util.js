@@ -26,12 +26,14 @@ exports.getTempPassword = () => {
 
 exports.getExpireDate = (month) => {
   let date = new Date();
-  let addMonth = date.getMonth() + month;
-  if (addMonth > 11) {
-    date.setFullYear(date.getFullYear() + 1);
-    addMonth -= 12;
+  let currentMonth = date.getMonth();
+  if (currentMonth + month > 11) {
+    date.setFullYear(date.getFullYear());
+    currentMonth -= 12;
   }
-  const newDate = new Date(date.setMonth(addMonth + 1));
+  console.log(date);
+  const newDate = new Date(date.setMonth(currentMonth + 1));
+  console.log(newDate);
   return newDate;
 };
 
