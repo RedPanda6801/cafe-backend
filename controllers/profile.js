@@ -73,30 +73,19 @@ exports.withdrawOwner = async (req, res, next) => {
   try {
     const { email } = req.params;
     // 암호화된 코드는 url에 담으면 안됨
-    const { password } = req.body;
-
     const owner = await Owner.findOne({ where: { email, id: req.decoded.id } });
     if (!owner) {
       const error = resCode.FORBIDDEN_ERROR;
       console.error("ERROR RESPONSE -", error);
       return res.status(error.status).json(error);
     } else {
-      if (password !== owner.password) {
-        const error = JSON.parse(
-          JSON.stringify(resCode.BAD_REQUEST_WRONG_DATA)
-        );
-        error.message = "Password Error";
+      if (!(await Owner.destroy({ where: { email, id: req.decoded.id } }))) {
+        const error = resCode.BAD_REQUEST_WRONG_DATA;
         console.error("ERROR RESPONSE -", error);
-        return res.status(error.status).json(error);
+        return res.status(error.code).json(error);
       } else {
-        if (!(await Owner.destroy({ where: { email, id: req.decoded.id } }))) {
-          const error = resCode.BAD_REQUEST_WRONG_DATA;
-          console.error("ERROR RESPONSE -", error);
-          return res.status(error.code).json(error);
-        } else {
-          const response = resCode.REQUEST_SUCCESS;
-          return res.status(response.code).json(response);
-        }
+        const response = resCode.REQUEST_SUCCESS;
+        return res.status(response.code).json(response);
       }
     }
   } catch (error) {
