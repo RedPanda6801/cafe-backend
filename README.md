@@ -1,6 +1,9 @@
 # My Stamp-backend
 
-마이스탬프 백엔드
+소규모 카페를 위한 쿠폰 관리 솔루션, "마이 스탬프"의 백엔드 입니다.<br/>
+[프론트엔드 깃허브](https://github.com/RedPanda6801/cafe_front)
+
+
 
 # 전체 구조
 ```
