@@ -70,6 +70,7 @@ module.exports = (server, app) => {
           const response = resCode.REQUEST_SUCCESS;
           console.log(response);
           tablet.emit("success", "stack");
+          phone.emit("response", "stack");
         }
       } catch (error) {
         console.log(error);
@@ -80,7 +81,7 @@ module.exports = (server, app) => {
     socket.on("use", async (data) => {
       try {
         const { custPhone, cafeId, useCount } = data;
-        console.log("스탬프 추가 request - ", custPhone, cafeId, useCount);
+        console.log("스탬프 사용 request - ", custPhone, cafeId, useCount);
         const stamp = await Stamp.findOne({
           where: { custPhone, CafeId: cafeId },
         });
@@ -107,6 +108,7 @@ module.exports = (server, app) => {
             const response = resCode.REQUEST_SUCCESS;
             console.log(response);
             tablet.emit("success", "use");
+            phone.emit("response", "use");
           }
         }
       } catch (error) {

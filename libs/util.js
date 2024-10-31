@@ -39,9 +39,10 @@ exports.getExpireDate = (month) => {
 
 exports.makeEmail = (html, subject, email) => {
   let transporter = nodemailer.createTransport({
-    service: "Naver",
-    host: "smtp.naver.com",
+    service: "Google",
+    host: "smtp.gmail.com",
     port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL, // generated ethereal user
       pass: process.env.PASSWORD, // generated ethereal password

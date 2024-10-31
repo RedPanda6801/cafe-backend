@@ -60,7 +60,7 @@ exports.infosolution = async (req, res, next) => {
     });
     let response = {};
     // 질문 확인
-    if (myanswers === []) {
+    if (myanswers == []) {
       response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));

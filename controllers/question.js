@@ -41,7 +41,7 @@ exports.questioninfo = async (req, res, next) => {
     }
     let response = {};
     // 질문 확인
-    if (myquestions === []) {
+    if (myquestions == []) {
       response = JSON.parse(JSON.stringify(resCode.NO_SEARCH_DATA));
     } else {
       response = JSON.parse(JSON.stringify(resCode.REQUEST_SUCCESS));

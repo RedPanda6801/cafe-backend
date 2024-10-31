@@ -22,3 +22,10 @@ router.get("/check-id/:userId", checkUserId);
 // router.get("/find-id", getId);
 
 module.exports = router;
+
+/* 개선점
+1. 번호 삭제 시 '-' 삭제 안됨
+2. 사용 가능 쿠폰 개수가 소수점으로 보여짐
+3. 적립 페이지에서 적립하기 / 쿠폰 보기 페이지 필요
+4. 사장님 페이지도 적립 시 알림이 뜨게
+*/
