@@ -90,6 +90,20 @@ version: v14.15.4
 ```console
 > cd BACKEND
 > npm install
+
+!낮은 버전 이슈로 강제로 버전 다운이 필요할 때 해당 코드 이후에 run 필요!
+$env:NODE_OPTIONS="--openssl-legacy-provider"  // windows
+```
+
+## env 파일 설정
+.env 파일을 미리 설정해야 한다. .env 파일 추가 후 아래의 형식에 맞춰 추가한다.
+
+++) naver의 경우 smtp 설정을, google의 경우 앱비밀번호 설정을 해주어야 한다.
+```
+COOKIE_SECRET=mystamp-cookie
+EMAIL=실제 사용하는 이메일
+PASSWORD=실제 사용하는 비밀번호
+JWT_SECRET=jwtjwt
 ```
 
 ### nodemon을 통한 node서비스 실행
